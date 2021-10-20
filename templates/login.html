@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block head %}
+    <style>
+        .centered {
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          /* bring your own prefixes */
+          transform: translate(-50%, -50%);
+        }
+    </style>
+{% endblock %}
+{% block body %}
+    <body>
+        <form id="login" action="#" class="centered">
+            <input type="text" id="username" placeholder="User ID"><br><br>
+            <input type="text" id="password" placeholder="Password"><br><br>
+            <input type="submit" value="Submit">
+        </form>
+    </body>
+{% endblock %}

@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title></title>
+        <style>
+            body {
+              margin: 0;
+            }
+
+            /* Button Code */
+            .btn {
+                background-color: #306bd2;
+                border: none;
+                color: white;
+                padding: 16px 32px;
+                text-align: center;
+                font-size: 100%;
+                margin: 4px 2px;
+                opacity: .6;
+                transition: 0.2s;
+            }
+
+            .btn:hover {opacity: 1}
+
+            body {
+                background-color: powderblue;
+            }
+
+        </style>
+        {% block head %}
+        {% endblock %}
+    </head>
+
+    {% block body %}
+    {% endblock %}
+
+    <script>
+    </script>
+    {% block script %}
+    {% endblock %}
+</html>
