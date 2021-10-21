@@ -7,7 +7,7 @@ from flask import Flask, abort, redirect, request, redirect, url_for, render_tem
 from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
 
-import pusher
+# import pusher
 import hashlib
 
 # pusher_client = pusher.Pusher(
@@ -19,7 +19,7 @@ import hashlib
 # )
 
 # pusher_client.trigger('my-channel', 'my-event', {'message': 'hello world'})
-
+print(os.chdir("C:\\Users\\Jared\\PycharmProjects\\CAIR"))
 with open("config.yaml", "r") as f:
 	cfg = yaml.safe_load(f)
 DBstr = cfg["DBstr"]
@@ -47,6 +47,10 @@ def login():
 	if request.method == "GET":
 		return render_template("login.html")
 	else:
+		print(request.form.get("username"))
+		query = db.engine.execute("SELECT * FROM `user` WHERE username is 'hi'")
+		user = query.fetchall()[0]
+
 		return ('', 204)
 
 @app.route("/newuser", methods = ["GET", "POST"])

@@ -51,8 +51,8 @@
 {% endblock %}
 {% block body %}
     <body>
-        <div class="container">
-            <form id="login" action="#">
+        <div class="container" >
+            <form id="login" method="POST">
                 <input type="text" id="username" placeholder="User ID"><br><br>
                 <input type="text" id="password" placeholder="Password"><br><br>
                 <input type="submit" value="Login">
@@ -62,4 +62,9 @@
 {% endblock %}
 
 {% block script %}
+    <script>
+        var request = new XMLHttpRequest();
+        request.open("POST", "http://foo.com/submitform.php");
+        request.send(formData);
+    </script>
 {% endblock %}
