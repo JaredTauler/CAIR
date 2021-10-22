@@ -11,14 +11,6 @@ from flask_sqlalchemy import SQLAlchemy
 # import pusher
 import hashlib
 
-# pusher_client = pusher.Pusher(
-#   app_id='1278094',
-#   key='61e4aab53292a02cf890',
-#   secret='ad98e29be2d755447478',
-#   cluster='us2',
-#   ssl=True
-# )
-
 # pusher_client.trigger('my-channel', 'my-event', {'message': 'hello world'})
 print(os.chdir("C:\\Users\\Student\\PycharmProjects\\CAIR"))
 with open("config.yaml", "r") as f:
