@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% block head %}
+
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <style>
+        {#.container {#}
+        {#    position: fixed;#}
+        {#    top: 50%;#}
+        {#    left: 50%;#}
+        {#    /* bring your own prefixes */#}
+        {#    transform: translate(-50%, -50%);#}
+        {#}#}
+        {##}
+        {#         .container input {#}
+        {#    border-radius: 7px;#}
+        {#    margin: 0 auto;#}
+        {# }#}
+        {##}
+        {# .container input[type=submit] {#}
+        {#    display: block;#}
+        {#    background-color: #306bd2;#}
+        {##}
+        {#    border-style: none;#}
+        {#    color: white;#}
+        {#    padding: 6% 6%;#}
+        {#    width: 50%;#}
+        {#    text-align: center;#}
+        {#    font-size: 90%;#}
+        {#    opacity: .8;#}
+        {#    transition: 0.2s;#}
+        {##}
+        {#}#}
+        {#.container input[type=submit]:hover {opacity: 1}#}
+        {#.container input[type=text] {#}
+        {#    background-color: #FFFFFF;#}
+        {#    border: solid;#}
+        {#    color: black;#}
+        {#    padding: 3% 3%;#}
+        {##}
+        {#    font-size: 80%;#}
+        {##}
+        {#    border-width: thin;#}
+        {#}#}
+    </style>
+{% endblock %}
+{% block body %}
+    <body>
+        <div class="container">
+            <form method="post" action="/">
+                <span>
+                    <input title="Date" id="date" type="date" style="float:left;" width="10px">
+                    <select title="School" id="school" style="float:left;">
+                        <option value="" disabled selected hidden>School</option>
+                        // Far easier to populate these lists with JS rather than jinja.
+                    </select>
+                </span><br>
+
+                <input title="Student Name" type="text" id="name" placeholder="Student Name" list="studentlist"><br>
+                <datalist id="studentlist"></datalist>
+
+                <select title="Intervention Type" id="action">
+                    <option value="" disabled selected hidden>Interaction Type</option>
+                </select><br>
+
+                <input title="Additional Information" type="text" id="extra" placeholder="Additional Information" list="extralist"><br>
+                <datalist id="extralist"></datalist>
+
+                <textarea title="Comment" id="comment"></textarea><br>
+
+                <span>
+                    <button id="record" style="float:left;">Record</button>
+                    <input type="submit" value="Save" style="float:left;">
+                </span>
+
+
+            </form>
+
+        </div>
+
+{% endblock %}
+{%  block script %}
+    <script>
+        // Populate datalists
+        let None = null
+        var values = {{ values|safe }};
+
+        for (var key in values["list"]) {
+            console.log(key)
+            console.log(values["list"])
+            let select = document.querySelector("#".concat(key));
+            data.forEach(function (x, i) {
+                let opt = document.createElement('option');
+                opt.value = i;
+                opt.text = x;
+                select.appendChild(opt)
+            });
+        }
+
+
+        {# let data = [{{ values|safe }}["studentlist"]; // jinja goes crazy without "|safe".#}
+        {# let name = document.querySelector("#name");#}
+        {# let  = document.querySelector("#name");#}
+        {# data.forEach(function (x, i)#}
+        {#    {if (CheckElement(x)) {#}
+        {#            exit = true#}
+        {#            return false // Break loop#}
+        {#        }#}
+        {#    }#}
+        {#)#}
+     </script>
+{% endblock %}

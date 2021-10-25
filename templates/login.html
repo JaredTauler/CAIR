@@ -97,14 +97,14 @@
                 if (exit) {return false} // Break function if loop found elements guilty.
 
                 console.log(username.attributes)
-                var formData = {
+                let formData = {
                     "username": $("#username").val(),
                     "password": $("#password").val(),
                 };
                 console.log(formData);
                 $.ajax({
                     type: "POST",
-                    url: origin,
+                    url: window.location.href,
                     data: formData,
                     dataType: "json",
                     encode: true,

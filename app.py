@@ -2,6 +2,9 @@ import json
 import os
 
 import sqlalchemy
+from sqlalchemy import Table, Column, Integer, String, MetaData
+
+
 import yaml
 
 from flask import Flask, abort, redirect, request, redirect, url_for, render_template, request, session, jsonify
@@ -32,12 +35,40 @@ app.config["SESSION_SQLALCHEMY"] = db
 sess = Session(app)
 db.create_all()
 
-
-
 # Main Program
-@app.route('/', methods = ["GET", "POST"])
+@app.route('/entry', methods = ["GET", "POST"])
+def entry():
+	if not session.get("logged_in"):
+		return redirect(url_for("login"))
+
+	if request.method == "GET":
+		data = {}
+		data["list"] = {}
+
+		query = db.engine.execute(
+			f"SELECT * FROM `school` "
+		)
+		fetch = query.fetchall()
+		data["list"]["school"] = fetch
+
+		query = db.engine.execute(
+			f"SELECT id, fname, lname, school FROM `student`"
+		)
+		fetch = query.fetchall()
+		data["list"]["studentlist"] = fetch
+		# data["extralist"] = ["list", ["idk", "what", "goes", "here"]]
+
+		return render_template("entry.html", values=data)
+
+	else:
+		pass
+
+
+@app.route("/")
 @app.route('/login', methods = ["GET", "POST"])
 def login():
+	if session.get("logged_in"):
+		return redirect(url_for("entry"))
 	# Serve login page.
 	if request.method == "GET":
 		return render_template("login.html")
@@ -87,7 +118,7 @@ def login():
 			# If password from form == password in DB login user.
 			if hashed == fromDB["password"]:
 				session["logged_in"] = True
-				return jsonify("Logged in"), 200
+				return redirect(url_for("entry"))
 
 			else:
 				raise BadPassword()
