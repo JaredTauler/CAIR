@@ -1,10 +1,6 @@
 import json
 import os
 
-import sqlalchemy
-from sqlalchemy import Table, Column, Integer, String, MetaData
-
-
 import yaml
 
 from flask import Flask, abort, redirect, request, redirect, url_for, render_template, request, session, jsonify
@@ -15,14 +11,13 @@ from flask_sqlalchemy import SQLAlchemy
 import hashlib
 
 # pusher_client.trigger('my-channel', 'my-event', {'message': 'hello world'})
-# print(os.chdir("C:\\Users\\Student\\PycharmProjects\\CAIR"))
-os.chdir("C:\\Users\\Jared\\PycharmProjects\\CAIR")
+os.chdir("C:\\Users\\Student\\PycharmProjects\\CAIR")
+# os.chdir("C:\\Users\\Jared\\PycharmProjects\\CAIR")
 with open("config.yaml", "r") as f:
 	cfg = yaml.safe_load(f)
 
 DBstr = cfg["DBstr"]
 DEBUG = cfg["DEBUG"]
-
 
 app = Flask(__name__)
 app.secret_key = os.urandom(16)
@@ -34,7 +29,6 @@ app.config["SESSION_SQLALCHEMY"] = db
 sess = Session(app)
 db.create_all()
 
-
 # Main Program
 @app.route("/", methods = ["GET"])
 def guide():
@@ -43,6 +37,17 @@ def guide():
 	else:
 		return redirect(url_for("entry"))
 
+# def query_db(query, args=(), one=False):
+#     cur = db().cursor()
+#     cur.execute(query, args)
+#     r = [dict(
+# 		(cur.description[i][0], value) for i, value in enumerate(row)) for row in cur.fetchall()]
+#     cur.connection.close()
+#     return (r[0] if r else None) if one else r
+#
+# my_query = query_db("select * from majorroadstiger limit %s", (3,))
+#
+# json_output = json.dumps(my_query)
 
 @app.route('/entry', methods = ["GET", "POST"])
 def entry():
@@ -53,20 +58,19 @@ def entry():
 		data = {}
 		data["list"] = {}
 
-		query = db.engine.execute(
-			f"SELECT * FROM `school` "
-		)
-		fetch = query.fetchall()
-		data["list"]["school"] = fetch
-
-		query = db.engine.execute(
-			f"SELECT id, fname, lname, school FROM `student`"
-		)
-		fetch = query.fetchall()
-		data["list"]["studentlist"] = fetch
-		# data["extralist"] = ["list", ["idk", "what", "goes", "here"]]
-
-		return render_template("entry.html", values=data)
+		# query = db.engine.execute(
+		# 	f"SELECT * FROM `school` "
+		# )
+		# fetch = query.fetchall()
+		# data["list"]["school"] = fetch
+		# query = db.engine.execute(
+		# 	f"SELECT id, fname, lname, school FROM `student`"
+		# )
+		# fetch = query.fetchall()
+		# data["list"]["studentlist"] = fetch
+		data["list"]["school"] = ["idk", "what", "goes", "here"]
+		print(data["list"]["studentlist"])
+		return render_template("entry.html", values=jsonify(data))
 
 	else:
 		pass

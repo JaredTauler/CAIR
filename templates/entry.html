@@ -81,20 +81,24 @@
 {% endblock %}
 {%  block script %}
     <script>
-        // Populate datalists
+        // Populate lists
         let None = null
         var values = {{ values|safe }};
+        list = values["list"]
+        console.log(values)
+        console.log(values["list"]["studentlist"])
+        for (let key in list) {
 
-        for (var key in values["list"]) {
-            console.log(key)
-            console.log(values["list"])
             let select = document.querySelector("#".concat(key));
-            data.forEach(function (x, i) {
+            for (let i in list[key]) {
+                val = list[key][i]
                 let opt = document.createElement('option');
                 opt.value = i;
-                opt.text = x;
-                select.appendChild(opt)
-            });
+                opt.text = val;
+                select.appendChild(opt);
+            }
+
+
         }
 
 
