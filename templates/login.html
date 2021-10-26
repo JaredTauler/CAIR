@@ -73,7 +73,7 @@
         username.addEventListener("change", function(){CheckElement(username)});
         password.addEventListener("change", function(){CheckElement(password)});
 
-        {#TODO implement more checks on the username and password.#}
+        {#TODO add more checks on the username and password.#}
         function CheckElement(element) {
             let text = element.value
                 console.log(text)
@@ -102,14 +102,19 @@
                     "password": $("#password").val(),
                 };
                 console.log(formData);
+                // Post to server
                 $.ajax({
                     type: "POST",
                     url: window.location.href,
-                    data: formData,
                     dataType: "json",
                     encode: true,
+                    data: formData,
+                // On response data:
                 }).done(function (data) {
-                    console.log(data);
+                    if (data[0] === "redirect") {
+                        window.location.href = data[1]
+                    }
+                    // TODO Tell user why couldnt login.
                 });
 
                 event.preventDefault();

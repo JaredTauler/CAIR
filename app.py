@@ -15,15 +15,14 @@ from flask_sqlalchemy import SQLAlchemy
 import hashlib
 
 # pusher_client.trigger('my-channel', 'my-event', {'message': 'hello world'})
-print(os.chdir("C:\\Users\\Student\\PycharmProjects\\CAIR"))
+# print(os.chdir("C:\\Users\\Student\\PycharmProjects\\CAIR"))
+os.chdir("C:\\Users\\Jared\\PycharmProjects\\CAIR")
 with open("config.yaml", "r") as f:
 	cfg = yaml.safe_load(f)
+
 DBstr = cfg["DBstr"]
-#
-# try:
-# 	c = create_engine(DBstr)
-# raise:
-# Error
+DEBUG = cfg["DEBUG"]
+
 
 app = Flask(__name__)
 app.secret_key = os.urandom(16)
@@ -35,7 +34,16 @@ app.config["SESSION_SQLALCHEMY"] = db
 sess = Session(app)
 db.create_all()
 
+
 # Main Program
+@app.route("/", methods = ["GET"])
+def guide():
+	if not session.get("logged_in"):
+		return redirect(url_for("login"))
+	else:
+		return redirect(url_for("entry"))
+
+
 @app.route('/entry', methods = ["GET", "POST"])
 def entry():
 	if not session.get("logged_in"):
@@ -64,11 +72,12 @@ def entry():
 		pass
 
 
-@app.route("/")
 @app.route('/login', methods = ["GET", "POST"])
 def login():
-	if session.get("logged_in"):
-		return redirect(url_for("entry"))
+	print(request.method)
+	# if session.get("logged_in"):
+	# 	return redirect(url_for("entry"))
+
 	# Serve login page.
 	if request.method == "GET":
 		return render_template("login.html")
@@ -80,10 +89,10 @@ def login():
 		try:
 			# Get data from form
 			requestdict = request.form.to_dict()
-			# Abort on blank form.
+			print(requestdict)
+			if requestdict == {}: abort(406) # Abort on blank form.
 			if requestdict["username"] == "": raise BadUsername()
 			if requestdict["password"] == "": raise BadPassword()
-			if requestdict == {}: abort(406)
 
 			# Encode password, wont need to look directly at it.
 			requestdict['password'] = requestdict['password'].encode('utf-8')
@@ -118,17 +127,21 @@ def login():
 			# If password from form == password in DB login user.
 			if hashed == fromDB["password"]:
 				session["logged_in"] = True
-				return redirect(url_for("entry"))
+				print("Logged in")
+				return jsonify(["redirect", url_for("guide")]), 200
 
 			else:
 				raise BadPassword()
 
 		except Exception as e:
-			if type(e) == BadPassword: info = jsonify({"bad": "password"})
-			elif type(e) == BadUsername: info = jsonify({"bad": "username"})
-			else: info = jsonify({"bad": "unknown"})
+			if type(e) == BadPassword: info = "password"
+			elif type(e) == BadUsername: info = "username"
+			else: # Unknown error
+				if DEBUG == True: # Dont handle excepection if debug mode
+					raise e
+				info = "unknown"
 
-			return info, 200
+			return jsonify(["bad", info]), 200
 
 
 @app.route("/newuser", methods = ["GET", "POST"])
@@ -158,5 +171,4 @@ def Usermake():
 
 # Start
 if __name__ == '__main__':
-	# TODO certificates.
 	app.run(debug=True)

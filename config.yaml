@@ -1,1 +1,2 @@
 DBstr: sqlite:///database.db
+DEBUG: true
