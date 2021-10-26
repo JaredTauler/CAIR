@@ -2,6 +2,7 @@ import json
 import os
 
 import yaml
+from sqlalchemy import create_engine
 
 from flask import Flask, abort, redirect, request, redirect, url_for, render_template, request, session, jsonify
 from flask_session import Session
@@ -19,6 +20,28 @@ with open("config.yaml", "r") as f:
 DBstr = cfg["DBstr"]
 DEBUG = cfg["DEBUG"]
 
+class Database():
+	def __init__(self, engine):
+		self.engine = engine
+
+	def execute(self, query, ForJSON=False):
+		with self.engine.connect() as connection:
+			result = connection.execute(query).cursor
+			description = result.description
+			fetch = result.fetchall()
+
+		if not ForJSON:
+			return fetch
+
+		# Prepare the data for JSON serialization
+		else:
+			row_headers = [x[0] for x in description]
+			json_data = []
+			for result in fetch:
+				json_data.append(dict(zip(row_headers, result)))
+		return json_data
+
+# Prepare app
 app = Flask(__name__)
 app.secret_key = os.urandom(16)
 db = SQLAlchemy(app)
@@ -28,6 +51,8 @@ app.config["SESSION_SQLALCHEMY"] = db
 
 sess = Session(app)
 db.create_all()
+database = Database(db.engine)
+
 
 # Main Program
 @app.route("/", methods = ["GET"])
@@ -37,17 +62,7 @@ def guide():
 	else:
 		return redirect(url_for("entry"))
 
-# def query_db(query, args=(), one=False):
-#     cur = db().cursor()
-#     cur.execute(query, args)
-#     r = [dict(
-# 		(cur.description[i][0], value) for i, value in enumerate(row)) for row in cur.fetchall()]
-#     cur.connection.close()
-#     return (r[0] if r else None) if one else r
-#
-# my_query = query_db("select * from majorroadstiger limit %s", (3,))
-#
-# json_output = json.dumps(my_query)
+
 
 @app.route('/entry', methods = ["GET", "POST"])
 def entry():
@@ -58,19 +73,15 @@ def entry():
 		data = {}
 		data["list"] = {}
 
-		# query = db.engine.execute(
-		# 	f"SELECT * FROM `school` "
-		# )
-		# fetch = query.fetchall()
-		# data["list"]["school"] = fetch
-		# query = db.engine.execute(
-		# 	f"SELECT id, fname, lname, school FROM `student`"
-		# )
-		# fetch = query.fetchall()
-		# data["list"]["studentlist"] = fetch
-		data["list"]["school"] = ["idk", "what", "goes", "here"]
-		print(data["list"]["studentlist"])
-		return render_template("entry.html", values=jsonify(data))
+		query = database.execute(
+			f"SELECT * FROM `school` ", True
+		)
+		data["list"]["school"] = query
+		query = database.execute(
+			f"SELECT id, fname, lname, school FROM `student`", True
+		)
+		data["list"]["studentlist"] = query
+		return render_template("entry.html", values=data)
 
 	else:
 		pass

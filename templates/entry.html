@@ -80,37 +80,56 @@
 
 {% endblock %}
 {%  block script %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossOrigin="anonymous"></script>
+
     <script>
         // Populate lists
-        let None = null
-        var values = {{ values|safe }};
-        list = values["list"]
-        console.log(values)
-        console.log(values["list"]["studentlist"])
-        for (let key in list) {
+        {
+            let None = null
+            var values = {{ values|safe }};
+            var list = values["list"]
 
-            let select = document.querySelector("#".concat(key));
-            for (let i in list[key]) {
-                val = list[key][i]
-                let opt = document.createElement('option');
-                opt.value = i;
-                opt.text = val;
-                select.appendChild(opt);
+            function title(str) {
+                return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
             }
 
+            function newoption(opt, key) {
+                let select = document.querySelector("#".concat(key));
+                select.appendChild(opt);
+            }
+            for (let key in list) {
+                for (let i in list[key]) {
+                    row = list[key][i]
+                    console.log(row)
+                    let opt = document.createElement('option');
 
+                    // Decide how to handle data depending on what list is being drawn from. This seemed like the best
+                    // way to do it.
+
+                    if (key === "studentlist") {
+                        opt.value = "".concat(title(row["fname"]), " ", title(row["lname"]));
+                    } else if (key === "school") {
+                        opt.text = "".concat(row["fullname"]);
+                        console.log(row["fullname"])
+                    }
+
+                    newoption(opt, key);
+                }
+            }
+            // Old method of above. It might be better to have server make the data exactly as the client needs it but idk.
+            {#for (let key in list) {#}
+            {##}
+            {#    let select = document.querySelector("#".concat(key));#}
+            {#    for (let i in list[key]) {#}
+            {#        val = list[key][i]#}
+            {#        let opt = document.createElement('option');#}
+            {#        opt.value = i;#}
+            {#        opt.text = val;#}
+            {#        select.appendChild(opt);#}
+            {#    }#}
+            {# }#}
         }
 
 
-        {# let data = [{{ values|safe }}["studentlist"]; // jinja goes crazy without "|safe".#}
-        {# let name = document.querySelector("#name");#}
-        {# let  = document.querySelector("#name");#}
-        {# data.forEach(function (x, i)#}
-        {#    {if (CheckElement(x)) {#}
-        {#            exit = true#}
-        {#            return false // Break loop#}
-        {#        }#}
-        {#    }#}
-        {#)#}
      </script>
 {% endblock %}
