@@ -1,5 +1,6 @@
 import json
 import os
+import re
 
 import yaml
 from sqlalchemy import create_engine
@@ -12,8 +13,8 @@ from flask_sqlalchemy import SQLAlchemy
 import hashlib
 
 # pusher_client.trigger('my-channel', 'my-event', {'message': 'hello world'})
-os.chdir("C:\\Users\\Student\\PycharmProjects\\CAIR")
-# os.chdir("C:\\Users\\Jared\\PycharmProjects\\CAIR")
+# os.chdir("C:\\Users\\Student\\PycharmProjects\\CAIR")
+os.chdir("C:\\Users\\Jared\\PycharmProjects\\CAIR")
 with open("config.yaml", "r") as f:
 	cfg = yaml.safe_load(f)
 
@@ -74,17 +75,72 @@ def entry():
 		data["list"] = {}
 
 		query = database.execute(
-			f"SELECT * FROM `school` ", True
+			f"SELECT id, fullname FROM `school` ", True
 		)
 		data["list"]["school"] = query
 		query = database.execute(
 			f"SELECT id, fname, lname, school FROM `student`", True
 		)
 		data["list"]["studentlist"] = query
+		print(query)
+		query = database.execute(
+			f"SELECT id, description FROM `action`", True
+		)
+		data["list"]["action"] = query
+
+
+
 		return render_template("entry.html", values=data)
 
-	else:
-		pass
+	else: # POST
+		print(request.form.to_dict())
+		rd = request.form.to_dict()
+		'''
+If the student is selected from the dropdown, client will return the student's ID in the database.
+If a students name is typed, name will be searched for in database, if that fails will ask user if they want
+to create a new entry.
+
+Unfortunately this makes an assumption that the student ID's will never have letters in them.
+		'''
+
+		class DBerror(Exception): pass
+
+		# TODO robust?
+		name = rd["student_id"]
+		if not name.isnumeric(): # If ID is a name rather than an ID number,
+			# Split in 2.
+			fname, lname = name.split(maxsplit=1)
+
+			# Leave only letters behind.
+			fname = re.sub('[^a-zA-Z]+', '', fname)
+			lname = re.sub('[^a-zA-Z]+', '', lname)
+
+
+			query = database.execute(
+				f"SELECT id, fname, lname FROM `student` WHERE `fname` REGEXP '{fname}' OR `lname` REGEXP '{lname}'",
+				True
+			)
+			if len(query) == 0:
+				raise DBerror()
+			else:
+				return jsonify({"result": "pick", "query": query}), 200
+
+		else:
+			query = database.execute(
+				f"SELECT id FROM `student` WHERE id IS '{name}'"
+			)
+			if len(query) == 0:
+				raise DBerror()
+
+		# query = database.execute(
+		# 	"INSERT INTO `ticket` "
+		# 		"(`student_id`, `action`, `comment`, `info`)"
+		# 	"VALUES "
+		# 		f"('{rd['student']}', '{email}', '{hashed.hex()}', '{salt.hex()}')"
+		# )
+
+
+		return "", 200
 
 
 @app.route('/login', methods = ["GET", "POST"])
@@ -98,7 +154,7 @@ def login():
 		return render_template("login.html")
 
 	# Login routine.
-	else:
+	else: # POST
 		class BadPassword(Exception): pass
 		class BadUsername(Exception): pass
 		try:

@@ -1,72 +1,169 @@
 {% extends "base.html" %}
 {% block head %}
 
-    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <style>
-        {#.container {#}
-        {#    position: fixed;#}
-        {#    top: 50%;#}
-        {#    left: 50%;#}
-        {#    /* bring your own prefixes */#}
-        {#    transform: translate(-50%, -50%);#}
-        {#}#}
-        {##}
-        {#         .container input {#}
-        {#    border-radius: 7px;#}
-        {#    margin: 0 auto;#}
-        {# }#}
-        {##}
-        {# .container input[type=submit] {#}
-        {#    display: block;#}
-        {#    background-color: #306bd2;#}
-        {##}
-        {#    border-style: none;#}
-        {#    color: white;#}
-        {#    padding: 6% 6%;#}
-        {#    width: 50%;#}
-        {#    text-align: center;#}
-        {#    font-size: 90%;#}
-        {#    opacity: .8;#}
-        {#    transition: 0.2s;#}
-        {##}
-        {#}#}
-        {#.container input[type=submit]:hover {opacity: 1}#}
-        {#.container input[type=text] {#}
-        {#    background-color: #FFFFFF;#}
-        {#    border: solid;#}
-        {#    color: black;#}
-        {#    padding: 3% 3%;#}
-        {##}
-        {#    font-size: 80%;#}
-        {##}
-        {#    border-width: thin;#}
-        {#}#}
-    </style>
+<meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<style>
+    {#.container {#}
+    {#    position: fixed;#}
+    {#    top: 50%;#}
+    {#    left: 50%;#}
+    {#    /* bring your own prefixes */#}
+    {#    transform: translate(-50%, -50%);#}
+    {# }#}
+    {##}
+    {#         .container input {#}
+    {#    border-radius: 7px;#}
+    {#    margin: 0 auto;#}
+    {# }#}
+    {##}
+    {# .container input[type=submit] {#}
+    {#    display: block;#}
+    {#    background-color: #306bd2;#}
+    {##}
+    {#    border-style: none;#}
+    {#    color: white;#}
+    {#    padding: 6% 6%;#}
+    {#    width: 50%;#}
+    {#    text-align: center;#}
+    {#    font-size: 90%;#}
+    {#    opacity: .8;#}
+    {#    transition: 0.2s;#}
+    {##}
+    {# }#}
+    {#.container input[type=submit]:hover {opacity: 1}#}
+    {#.container input[type=text] {#}
+    {#    background-color: #FFFFFF;#}
+    {#    border: solid;#}
+    {#    color: black;#}
+    {#    padding: 3% 3%;#}
+    {##}
+    {#    font-size: 80%;#}
+    {##}
+    {#    border-width: thin;#}
+    {# }#}
+    *, *::after, *::before {
+      box-sizing: border-box;
+    }
+
+    .modal {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      transition: 200ms ease-in-out;
+      border: 1px solid black;
+      border-radius: 10px;
+      z-index: 10;
+      background-color: white;
+      width: 500px;
+      max-width: 80%;
+    }
+
+    .modal.active {
+      transform: translate(-50%, -50%) scale(1);
+    }
+
+    .modal-header {
+      padding: 10px 15px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid black;
+    }
+
+    .modal-header .title {
+      font-size: 1.25rem;
+      font-weight: bold;
+    }
+
+    .modal-header .close-button {
+      cursor: pointer;
+      border: none;
+      outline: none;
+      background: none;
+      font-size: 1.25rem;
+      font-weight: bold;
+    }
+
+    .modal-body {
+      padding: 10px 15px;
+    }
+
+    #overlay {
+      position: fixed;
+      opacity: 0;
+      transition: 200ms ease-in-out;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, .5);
+      pointer-events: none;
+    }
+
+    #overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+</style>
 {% endblock %}
 {% block body %}
     <body>
         <div class="container">
-            <form method="post" action="/">
+            <form id = "mainform">
                 <span>
-                    <input title="Date" id="date" type="date" style="float:left;" width="10px">
-                    <select title="School" id="school" style="float:left;">
+                    <input
+                            name="date"
+                            title="Date"
+                            id="date"
+                            type="date"
+                            style="float:left;" width="10px"
+                    >
+                    <select
+                            title="School"
+                            id="school"
+                            name = "school"
+                            style="float:left;"
+                    >
                         <option value="" disabled selected hidden>School</option>
-                        // Far easier to populate these lists with JS rather than jinja.
+                        {# Far easier to populate these with JS rather than jinja. #}
                     </select>
                 </span><br>
 
-                <input title="Student Name" type="text" id="name" placeholder="Student Name" list="studentlist"><br>
+                <input
+                        name = "student_id"
+                        title="Student Name"
+                        type="text"
+                        id="student_id"
+                        placeholder="Student Name"
+                        list="studentlist"
+                ><br>
                 <datalist id="studentlist"></datalist>
 
-                <select title="Intervention Type" id="action">
+                <select
+                        name = "action"
+                        title="Intervention Type"
+                        id="action"
+                >
                     <option value="" disabled selected hidden>Interaction Type</option>
                 </select><br>
 
-                <input title="Additional Information" type="text" id="extra" placeholder="Additional Information" list="extralist"><br>
+                <input
+                        title="Additional Information"
+                        type="text"
+                        id="extra"
+                        name = "extra"
+                        placeholder="Additional Information"
+                        list="extralist"
+                ><br>
                 <datalist id="extralist"></datalist>
 
-                <textarea title="Comment" id="comment"></textarea><br>
+                <textarea
+                        title="Comment"
+                        id="comment"
+                        name = "comment"
+                ></textarea><br>
 
                 <span>
                     <button id="record" style="float:left;">Record</button>
@@ -75,28 +172,41 @@
 
 
             </form>
-
         </div>
+
+<div class="modal" id="PickStudent">
+    <div class="modal-header">
+          <div class="title">Select Student</div>
+    </div>
+    <div class="modal-body">
+        <p>More than one student was found</p>
+        <select title="Student Selection" id = PickStudentDropdown></select>
+        <button id="PickStudentSubmit">Submit</button>
+    </div>
+</div>
+<div id="overlay"></div>
+
 
 {% endblock %}
 {%  block script %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossOrigin="anonymous"></script>
 
     <script>
+        function title(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+        }
+
+        function newoption(opt, key) {
+            let select = document.querySelector("#".concat(key));
+            select.appendChild(opt);
+        }
+
         // Populate lists
         {
             let None = null
             var values = {{ values|safe }};
             var list = values["list"]
 
-            function title(str) {
-                return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-            }
-
-            function newoption(opt, key) {
-                let select = document.querySelector("#".concat(key));
-                select.appendChild(opt);
-            }
             for (let key in list) {
                 for (let i in list[key]) {
                     row = list[key][i]
@@ -107,28 +217,89 @@
                     // way to do it.
 
                     if (key === "studentlist") {
-                        opt.value = "".concat(title(row["fname"]), " ", title(row["lname"]));
-                    } else if (key === "school") {
+                        opt.text = "".concat(title(row["fname"]), " ", title(row["lname"]));
+                        opt.value = row["id"]
+                    }
+                    else if (key === "school") {
                         opt.text = "".concat(row["fullname"]);
-                        console.log(row["fullname"])
+                        opt.value = row["id"]
+                    }
+                    else if (key === "action") {
+                        opt.text = "".concat(row["description"]);
+                        opt.value = row["id"];
                     }
 
                     newoption(opt, key);
                 }
             }
-            // Old method of above. It might be better to have server make the data exactly as the client needs it but idk.
-            {#for (let key in list) {#}
-            {##}
-            {#    let select = document.querySelector("#".concat(key));#}
-            {#    for (let i in list[key]) {#}
-            {#        val = list[key][i]#}
-            {#        let opt = document.createElement('option');#}
-            {#        opt.value = i;#}
-            {#        opt.text = val;#}
-            {#        select.appendChild(opt);#}
-            {#    }#}
-            {# }#}
         }
+
+        // Modal student picker.
+        {
+            const overlay = document.getElementById('overlay')
+            const PickStudent = document.getElementById('PickStudent')
+            const PickStudentSubmit = document.getElementById('PickStudentSubmit')
+
+            PickStudentSubmit.addEventListener("click", function () {})
+
+            function openModal(modal, query) {
+                let options = document.getElementById("PickStudentDropdown")
+                while (options.childNodes.length > 0) {
+                    options.removeChild(options.lastChild);
+                }
+
+                for (let i in query) {
+                    let row = query[i]
+                    let opt = document.createElement('option');
+                    opt.text = "".concat(title(row["fname"]), " ", title(row["lname"]));
+                    opt.value = row["id"]
+                    newoption(opt, options.id);
+                }
+
+                if (modal == null) return
+                modal.classList.add('active')
+                overlay.classList.add('active')
+            }
+
+            function closeModal(modal) {
+                if (modal == null) return
+                modal.classList.remove('active')
+                overlay.classList.remove('active')
+            }
+
+        }
+
+        // Form submission logic.
+        let form = document.querySelector("#mainform")
+        $("#mainform").submit(function (event) {
+             // Get all data from form.
+            let formData = new FormData(document.querySelector('#mainform'))
+            for (var pair of formData.entries()) {
+                console.log(pair[0] + ': ' + pair[1]);
+            }
+
+            // Post to server
+            $.ajax({
+                type: "POST",
+                url: window.location.href,
+                dataType: "json",
+                processData: false,
+                contentType: false,
+                encode: true,
+                data: formData,
+
+            // On response data:
+            }).done(function (data) {
+                if (data["result"] === "pick") {
+                    openModal(PickStudent, data["query"])
+                }
+
+                return false
+            });
+
+            event.preventDefault();
+            return false;
+        });
 
 
      </script>
