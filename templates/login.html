@@ -68,12 +68,12 @@
         let username = document.querySelector("#username")
         let password = document.querySelector("#password")
         const FormElements = [username, password]
-        {# Create a function that runs the check element function?... this is intentional, as
-           just passing CheckElement() would give the RESULT of CheckElement() as the listener's function. #}
+        // Create a function that runs the check element function?... this is intentional, as
+        // just passing CheckElement() would give the RESULT of CheckElement() as the listener's function.
         username.addEventListener("change", function(){CheckElement(username)});
         password.addEventListener("change", function(){CheckElement(password)});
 
-        {#TODO add more checks on the username and password.#}
+        // TODO add more checks on the username and password.
         function CheckElement(element) {
             let text = element.value
                 console.log(text)

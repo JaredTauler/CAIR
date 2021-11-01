@@ -4,108 +4,45 @@
 <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0" />
 <meta name="apple-mobile-web-app-capable" content="yes" />
 <style>
-    {#.container {#}
-    {#    position: fixed;#}
-    {#    top: 50%;#}
-    {#    left: 50%;#}
-    {#    /* bring your own prefixes */#}
-    {#    transform: translate(-50%, -50%);#}
-    {# }#}
-    {##}
-    {#         .container input {#}
-    {#    border-radius: 7px;#}
-    {#    margin: 0 auto;#}
-    {# }#}
-    {##}
-    {# .container input[type=submit] {#}
-    {#    display: block;#}
-    {#    background-color: #306bd2;#}
-    {##}
-    {#    border-style: none;#}
-    {#    color: white;#}
-    {#    padding: 6% 6%;#}
-    {#    width: 50%;#}
-    {#    text-align: center;#}
-    {#    font-size: 90%;#}
-    {#    opacity: .8;#}
-    {#    transition: 0.2s;#}
-    {##}
-    {# }#}
-    {#.container input[type=submit]:hover {opacity: 1}#}
-    {#.container input[type=text] {#}
-    {#    background-color: #FFFFFF;#}
-    {#    border: solid;#}
-    {#    color: black;#}
-    {#    padding: 3% 3%;#}
-    {##}
-    {#    font-size: 80%;#}
-    {##}
-    {#    border-width: thin;#}
-    {# }#}
-    *, *::after, *::before {
-      box-sizing: border-box;
-    }
+    /*{#.container {#}*/
+    /*{#    position: fixed;#}*/
+    /*{#    top: 50%;#}*/
+    /*{#    left: 50%;#}*/
+    /*{#    !* bring your own prefixes *!#}*/
+    /*{#    transform: translate(-50%, -50%);#}*/
+    /*{# }#}*/
+    /*{##}*/
+    /*{#         .container input {#}*/
+    /*{#    border-radius: 7px;#}*/
+    /*{#    margin: 0 auto;#}*/
+    /*{# }#}*/
+    /*{##}*/
+    /*{# .container input[type=submit] {#}*/
+    /*{#    display: block;#}*/
+    /*{#    background-color: #306bd2;#}*/
+    /*{##}*/
+    /*{#    border-style: none;#}*/
+    /*{#    color: white;#}*/
+    /*{#    padding: 6% 6%;#}*/
+    /*{#    width: 50%;#}*/
+    /*{#    text-align: center;#}*/
+    /*{#    font-size: 90%;#}*/
+    /*{#    opacity: .8;#}*/
+    /*{#    transition: 0.2s;#}*/
+    /*{##}*/
+    /*{# }#}*/
+    /*{#.container input[type=submit]:hover {opacity: 1}#}*/
+    /*{#.container input[type=text] {#}*/
+    /*{#    background-color: #FFFFFF;#}*/
+    /*{#    border: solid;#}*/
+    /*{#    color: black;#}*/
+    /*{#    padding: 3% 3%;#}*/
+    /*{##}*/
+    /*{#    font-size: 80%;#}*/
+    /*{##}*/
+    /*{#    border-width: thin;#}*/
+    /*{# }#}*/
 
-    .modal {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%) scale(0);
-      transition: 200ms ease-in-out;
-      border: 1px solid black;
-      border-radius: 10px;
-      z-index: 10;
-      background-color: white;
-      width: 500px;
-      max-width: 80%;
-    }
-
-    .modal.active {
-      transform: translate(-50%, -50%) scale(1);
-    }
-
-    .modal-header {
-      padding: 10px 15px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid black;
-    }
-
-    .modal-header .title {
-      font-size: 1.25rem;
-      font-weight: bold;
-    }
-
-    .modal-header .close-button {
-      cursor: pointer;
-      border: none;
-      outline: none;
-      background: none;
-      font-size: 1.25rem;
-      font-weight: bold;
-    }
-
-    .modal-body {
-      padding: 10px 15px;
-    }
-
-    #overlay {
-      position: fixed;
-      opacity: 0;
-      transition: 200ms ease-in-out;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background-color: rgba(0, 0, 0, .5);
-      pointer-events: none;
-    }
-
-    #overlay.active {
-      opacity: 1;
-      pointer-events: all;
-    }
 </style>
 {% endblock %}
 {% block body %}
@@ -120,15 +57,6 @@
                             type="date"
                             style="float:left;" width="10px"
                     >
-                    <select
-                            title="School"
-                            id="school"
-                            name = "school"
-                            style="float:left;"
-                    >
-                        <option value="" disabled selected hidden>School</option>
-                        {# Far easier to populate these with JS rather than jinja. #}
-                    </select>
                 </span><br>
 
                 <input
@@ -152,12 +80,12 @@
                 <input
                         title="Additional Information"
                         type="text"
-                        id="extra"
-                        name = "extra"
+                        id="info"
+                        name = "info"
                         placeholder="Additional Information"
-                        list="extralist"
+                        list="infolist"
                 ><br>
-                <datalist id="extralist"></datalist>
+                <datalist id="infolist"></datalist>
 
                 <textarea
                         title="Comment"
@@ -174,18 +102,6 @@
             </form>
         </div>
 
-<div class="modal" id="PickStudent">
-    <div class="modal-header">
-          <div class="title">Select Student</div>
-    </div>
-    <div class="modal-body">
-        <p>More than one student was found</p>
-        <select title="Student Selection" id = PickStudentDropdown></select>
-        <button id="PickStudentSubmit">Submit</button>
-    </div>
-</div>
-<div id="overlay"></div>
-
 
 {% endblock %}
 {%  block script %}
@@ -201,7 +117,7 @@
             select.appendChild(opt);
         }
 
-        // Populate lists
+        // Populate lists #}
         {
             let None = null
             var values = {{ values|safe }};
@@ -219,13 +135,8 @@
                     if (key === "studentlist") {
                         opt.text = "".concat(title(row["fname"]), " ", title(row["lname"]));
                         opt.value = row["id"]
-                    }
-                    else if (key === "school") {
-                        opt.text = "".concat(row["fullname"]);
-                        opt.value = row["id"]
-                    }
-                    else if (key === "action") {
-                        opt.text = "".concat(row["description"]);
+                    } else if (key === "action") {
+                        opt.text = "".concat(row["type"]);
                         opt.value = row["id"];
                     }
 
@@ -234,49 +145,12 @@
             }
         }
 
-        // Modal student picker.
-        {
-            const overlay = document.getElementById('overlay')
-            const PickStudent = document.getElementById('PickStudent')
-            const PickStudentSubmit = document.getElementById('PickStudentSubmit')
-
-            PickStudentSubmit.addEventListener("click", function () {})
-
-            function openModal(modal, query) {
-                let options = document.getElementById("PickStudentDropdown")
-                while (options.childNodes.length > 0) {
-                    options.removeChild(options.lastChild);
-                }
-
-                for (let i in query) {
-                    let row = query[i]
-                    let opt = document.createElement('option');
-                    opt.text = "".concat(title(row["fname"]), " ", title(row["lname"]));
-                    opt.value = row["id"]
-                    newoption(opt, options.id);
-                }
-
-                if (modal == null) return
-                modal.classList.add('active')
-                overlay.classList.add('active')
-            }
-
-            function closeModal(modal) {
-                if (modal == null) return
-                modal.classList.remove('active')
-                overlay.classList.remove('active')
-            }
-
-        }
 
         // Form submission logic.
         let form = document.querySelector("#mainform")
         $("#mainform").submit(function (event) {
              // Get all data from form.
             let formData = new FormData(document.querySelector('#mainform'))
-            for (var pair of formData.entries()) {
-                console.log(pair[0] + ': ' + pair[1]);
-            }
 
             // Post to server
             $.ajax({

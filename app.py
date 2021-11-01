@@ -13,8 +13,8 @@ from flask_sqlalchemy import SQLAlchemy
 import hashlib
 
 # pusher_client.trigger('my-channel', 'my-event', {'message': 'hello world'})
-# os.chdir("C:\\Users\\Student\\PycharmProjects\\CAIR")
-os.chdir("C:\\Users\\Jared\\PycharmProjects\\CAIR")
+os.chdir("C:\\Users\\Student\\PycharmProjects\\CAIR")
+# os.chdir("C:\\Users\\Jared\\PycharmProjects\\CAIR")
 with open("config.yaml", "r") as f:
 	cfg = yaml.safe_load(f)
 
@@ -25,9 +25,11 @@ class Database():
 	def __init__(self, engine):
 		self.engine = engine
 
-	def execute(self, query, ForJSON=False):
+	def execute(self, query, ForJSON=False, NoResult=False):
 		with self.engine.connect() as connection:
 			result = connection.execute(query).cursor
+			if NoResult:
+				return True
 			description = result.description
 			fetch = result.fetchall()
 
@@ -58,16 +60,37 @@ database = Database(db.engine)
 # Main Program
 @app.route("/", methods = ["GET"])
 def guide():
-	if not session.get("logged_in"):
+	if not session.get("id"):
 		return redirect(url_for("login"))
 	else:
-		return redirect(url_for("entry"))
+		return redirect(url_for("report"))
+
+
+@app.route('/report', methods = ["GET", "POST"])
+def report():
+	if request.method == "GET":
+		return render_template("report.html")
+
+	else: # POST
+		rd = request.form.to_dict()
+		print("post")
+		if rd.get("ReportDropdown") == "user":
+			print(session)
+			query = database.execute(
+				"SELECT "
+					"* FROM `ticket` "
+				"WHERE "
+					f"user = '{session['id']}'",
+				True
+			)
+			print(query)
+		return jsonify(query), 200
 
 
 
 @app.route('/entry', methods = ["GET", "POST"])
 def entry():
-	if not session.get("logged_in"):
+	if not session.get("id"):
 		return redirect(url_for("login"))
 
 	if request.method == "GET":
@@ -75,72 +98,53 @@ def entry():
 		data["list"] = {}
 
 		query = database.execute(
-			f"SELECT id, fullname FROM `school` ", True
-		)
-		data["list"]["school"] = query
-		query = database.execute(
 			f"SELECT id, fname, lname, school FROM `student`", True
 		)
 		data["list"]["studentlist"] = query
-		print(query)
+
 		query = database.execute(
-			f"SELECT id, description FROM `action`", True
+			f"SELECT id, type FROM `action`", True
 		)
 		data["list"]["action"] = query
-
-
 
 		return render_template("entry.html", values=data)
 
 	else: # POST
-		print(request.form.to_dict())
-		rd = request.form.to_dict()
-		'''
-If the student is selected from the dropdown, client will return the student's ID in the database.
-If a students name is typed, name will be searched for in database, if that fails will ask user if they want
-to create a new entry.
+		try:
+			class DBerror(Exception): pass
 
-Unfortunately this makes an assumption that the student ID's will never have letters in them.
-		'''
-
-		class DBerror(Exception): pass
-
-		# TODO robust?
-		name = rd["student_id"]
-		if not name.isnumeric(): # If ID is a name rather than an ID number,
-			# Split in 2.
-			fname, lname = name.split(maxsplit=1)
-
-			# Leave only letters behind.
-			fname = re.sub('[^a-zA-Z]+', '', fname)
-			lname = re.sub('[^a-zA-Z]+', '', lname)
-
-
-			query = database.execute(
-				f"SELECT id, fname, lname FROM `student` WHERE `fname` REGEXP '{fname}' OR `lname` REGEXP '{lname}'",
-				True
-			)
-			if len(query) == 0:
-				raise DBerror()
-			else:
-				return jsonify({"result": "pick", "query": query}), 200
-
-		else:
+			rd = request.form.to_dict()
+			# Make sure student's ID is in DB. TODO There is probably a fancy SQL query that could check if the
+			# student's id is in the DB and then insert if it is.
 			query = database.execute(
 				f"SELECT id FROM `student` WHERE id IS '{name}'"
 			)
 			if len(query) == 0:
 				raise DBerror()
 
-		# query = database.execute(
-		# 	"INSERT INTO `ticket` "
-		# 		"(`student_id`, `action`, `comment`, `info`)"
-		# 	"VALUES "
-		# 		f"('{rd['student']}', '{email}', '{hashed.hex()}', '{salt.hex()}')"
-		# )
+			# Add ticket to database
+			try:
+				query = database.execute(
+					"INSERT INTO `ticket` "
+						"(`student_id`, `action`, `comment`, `info`, `date`, `timestamp`) "
+					"VALUES "
+						f"('{rd.get('student_id')}', '{rd.get('action')}', '{rd.get('comment')}', '{rd.get('info')}', '{rd.get('date')}', CURRENT_TIMESTAMP)",
+					NoResult=True
+				)
+			except:
+				raise DBerror()
+
+			# No need to check query. If there was an error inserting then there will be an exception.
 
 
-		return "", 200
+			return "", 200 # Return OK
+
+		except Exception as e:
+			if DEBUG:  # Dont handle excepection if debugging
+				raise e
+			info = "unknown"
+
+			return jsonify(["bad", info]), 200
 
 
 @app.route('/login', methods = ["GET", "POST"])
@@ -170,7 +174,7 @@ def login():
 
 			# Search database for given username.
 			query = db.engine.execute(
-				f"SELECT salt, password FROM `user` "
+				f"SELECT salt, password, id FROM `user` "
 				f"WHERE username is '{requestdict['username']}'"
 			)
 
@@ -184,6 +188,7 @@ def login():
 			fromDB = {}
 			fromDB["salt"] = bytes.fromhex(result[0]) # Go ahead and convert salt to bytes.
 			fromDB["password"] = result[1]
+			fromDB["id"] = result[2]
 
 			# Hash password given from form using salt from database.
 			hashed = hashlib.pbkdf2_hmac(
@@ -197,7 +202,7 @@ def login():
 
 			# If password from form == password in DB login user.
 			if hashed == fromDB["password"]:
-				session["logged_in"] = True
+				session["id"] = fromDB["id"]
 				print("Logged in")
 				return jsonify(["redirect", url_for("guide")]), 200
 
