@@ -2,6 +2,7 @@ import json
 import os
 import re
 
+import datetime
 import yaml
 from sqlalchemy import create_engine
 
@@ -44,6 +45,22 @@ class Database():
 				json_data.append(dict(zip(row_headers, result)))
 		return json_data
 
+
+def IsDate(item):
+	if type(item) is list:
+		iter = item
+	else:
+		iter = []
+		iter.append(item)
+
+	for i in iter:
+		i = i.replace("-", "")  # remove dashes
+		if not i.isnumeric:  # Not a number
+			return False
+
+	return True
+
+
 # Prepare app
 app = Flask(__name__)
 app.secret_key = os.urandom(16)
@@ -55,7 +72,6 @@ app.config["SESSION_SQLALCHEMY"] = db
 sess = Session(app)
 db.create_all()
 database = Database(db.engine)
-
 
 # Main Program
 @app.route("/", methods = ["GET"])
@@ -69,21 +85,90 @@ def guide():
 @app.route('/report', methods = ["GET", "POST"])
 def report():
 	if request.method == "GET":
-		return render_template("report.html")
+		data = {}
+		data["list"] = {}
+
+		query = database.execute(
+			f"SELECT id, fname, lname FROM `student`", True
+		)
+		data["list"]["studentlist"] = query
+		return render_template("report.html", values=data)
 
 	else: # POST
 		rd = request.form.to_dict()
-		print("post")
+
+		if rd.get("ByDate") == "on":
+			# SQL Injection Prevention
+			if not IsDate(
+				[rd.get("DateStart"), rd.get("DateEnd")]
+			):
+				return "", 400
+			else:
+				ByDate = True
+		else:
+			ByDate = False
+		if not rd["student_id"].isnumeric():
+			return "", 400
+
 		if rd.get("ReportDropdown") == "user":
-			print(session)
+			if ByDate:
+				query = database.execute(
+					"SELECT "
+					"* FROM `ticket`"
+					" WHERE "
+					f"`user_id` = '{session['id']}'"
+					" AND date BETWEEN "
+					f" '{rd['DateStart']}' "
+					" AND "
+					f" '{rd['DateEnd']}' "
+					,
+					True
+				)
+			else:
+				query = database.execute(
+					"SELECT "
+					"* FROM `ticket`"
+					" WHERE "
+					f"user_id = '{session['id']}'"
+					,
+					True
+				)
+
+			return jsonify(query), 200
+
+		elif rd.get("ReportDropdown") == "name":
 			query = database.execute(
-				"SELECT "
-					"* FROM `ticket` "
-				"WHERE "
-					f"user = '{session['id']}'",
+				"SELECT * FROM `student`"
+				,
 				True
 			)
-			print(query)
+
+		elif rd.get("ReportDropdown") == "student":
+			if ByDate:
+				query = database.execute(
+					"SELECT * FROM `ticket`"
+					" WHERE "
+					f"student_id = {rd['student_id']}"
+					" AND date BETWEEN "
+					f" '{rd['DateStart']}' "
+					" AND "
+					f" '{rd['DateEnd']}' "
+					,
+					True
+				)
+			else:
+				query = database.execute(
+					"SELECT * FROM `ticket`"
+					" WHERE "
+					f"student_id = {rd['student_id']}"
+					,
+					True
+				)
+
+		# Impossible
+		else:
+			return "", 400
+
 		return jsonify(query), 200
 
 
@@ -114,25 +199,30 @@ def entry():
 			class DBerror(Exception): pass
 
 			rd = request.form.to_dict()
+
+			# Prevent SQL injection.
+			if not rd['student_id'].isnumeric(): return "", 400
+			# TODO secure other stuff
+
 			# Make sure student's ID is in DB. TODO There is probably a fancy SQL query that could check if the
 			# student's id is in the DB and then insert if it is.
 			query = database.execute(
-				f"SELECT id FROM `student` WHERE id IS '{name}'"
+				f"SELECT id FROM `student` WHERE id = '{rd['student_id']}'"
 			)
 			if len(query) == 0:
-				raise DBerror()
+				return "", 400
 
 			# Add ticket to database
-			try:
-				query = database.execute(
-					"INSERT INTO `ticket` "
-						"(`student_id`, `action`, `comment`, `info`, `date`, `timestamp`) "
-					"VALUES "
-						f"('{rd.get('student_id')}', '{rd.get('action')}', '{rd.get('comment')}', '{rd.get('info')}', '{rd.get('date')}', CURRENT_TIMESTAMP)",
-					NoResult=True
-				)
-			except:
-				raise DBerror()
+			# try:
+			query = database.execute(
+				"INSERT INTO `ticket` "
+					"(`student_id`, `action`, `comment`, `info`, `date`, `timestamp`, `user_id`) "
+				"VALUES "
+					f"('{rd.get('student_id')}', '{rd.get('action')}', '{rd.get('comment')}', '{rd.get('info')}', '{rd.get('date')}', CURRENT_TIMESTAMP, '{session['id']}')",
+				NoResult=True
+			)
+			# except:
+			# 	raise DBerror()
 
 			# No need to check query. If there was an error inserting then there will be an exception.
 
@@ -174,8 +264,8 @@ def login():
 
 			# Search database for given username.
 			query = db.engine.execute(
-				f"SELECT salt, password, id FROM `user` "
-				f"WHERE username is '{requestdict['username']}'"
+				f"SELECT `salt`, `password`, `id` FROM `user` "
+				f"WHERE `username` = '{requestdict['username']}'"
 			)
 
 			# 0 index in case more than one result. Out of scope to worry about more than one user with same ID.

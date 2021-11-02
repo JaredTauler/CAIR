@@ -1,2 +1,2 @@
-DBstr: sqlite:///database.db
+DBstr: mysql://student:5249@10.227.160.116/cair
 DEBUG: true
