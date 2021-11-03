@@ -8,18 +8,114 @@
                 background-color: powderblue;
             }
 
+            .btn {
+                padding: 1000px;
+            }
+
+            /* HEADER */
+            .header {
+              padding: 10px 16px;
+              background: #555;
+              color: #f1f1f1;
+            }
+
+            .content {
+              padding: 16px;
+            }
+
+            .sticky {
+              position: fixed;
+              top: 0;
+              width: 100%
+            }
+
+            .sticky + .content {
+              padding-top: 102px;
+            }
+            /* NAVIGATION */
+            .dropdown-content {
+                  visibility: hidden;
+                  width: 100%;
+                  background-color: #fff;
+                  /*color: #fff;*/
+                  text-align: center;
+                  position: absolute;
+                  z-index: 1;
+
+            }
+
+
+            .button {
+                display: block;
+                background-color: #306bd2;
+
+                border-style: none;
+                color: white;
+                width: 100%;
+                text-align: center;
+                font-size: 90%;
+                opacity: .8;
+                transition: 0.2s;
+
+            }
+            .button:hover {opacity: 1}
+
+            .show {
+                visibility: visible;
+            }
+
+            .dropdown {
+              position: relative;
+              display: inline-block;
+            }
+
         </style>
         {% block head %}
         {% endblock %}
     </head>
 
     <body>
+        <div class="header" id="Header">
+            <h2>My Header</h2>
+            <div class="dropdown">
+              <button id="NavigationButton">Dropdown</button>
+              <div id="NavigationDropdown" class="dropdown-content">
+                <a class="button" href="#about">About</a>
+                <a class="button" href="#base">Base</a>
+                <a class="button" href="#blog">Blog</a>
+                <a class="button" href="#contact">Contact</a>
+                <a class="button" href="#custom">Custom</a>
+                <a class="button" href="#support">Support</a>
+                <a class="button" href="#tools">Tools</a>
+              </div>
+            </div>
+        </div>
+
         {% block body %}
         {% endblock %}
     </body>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossOrigin="anonymous"></script>
     <script>
+        // for (i in document.getElementById("NavigationDropdown").children) {
+        //     let x = document.getElementById("NavigationDropdown").children[i]
+        //     console.log(x)
+        // }
+        var header = document.getElementById("Header");
+        var sticky = header.offsetTop;
+        window.onscroll = function() {
+          if (window.pageYOffset > sticky) {
+            header.classList.add("sticky");
+          } else {
+            header.classList.remove("sticky");
+          }
+        };
+
+        document.getElementById("NavigationButton").addEventListener("click", function () {
+            document.getElementById("NavigationDropdown").classList.toggle("show")
+        })
+
+
     </script>
     {% block script %}
     {% endblock %}

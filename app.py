@@ -9,7 +9,8 @@ from sqlalchemy import create_engine
 from flask import Flask, abort, redirect, request, redirect, url_for, render_template, request, session, jsonify
 from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
-
+import mysql
+mysql.connector.connect()
 # import pusher
 import hashlib
 
@@ -39,6 +40,7 @@ class Database():
 
 		# Prepare the data for JSON serialization
 		else:
+			print(description)
 			row_headers = [x[0] for x in description]
 			json_data = []
 			for result in fetch:
@@ -107,43 +109,42 @@ def report():
 				ByDate = True
 		else:
 			ByDate = False
-		if not rd["student_id"].isnumeric():
-			return "", 400
+
 
 		if rd.get("ReportDropdown") == "user":
-			if ByDate:
-				query = database.execute(
-					"SELECT "
-					"* FROM `ticket`"
-					" WHERE "
-					f"`user_id` = '{session['id']}'"
-					" AND date BETWEEN "
-					f" '{rd['DateStart']}' "
-					" AND "
-					f" '{rd['DateEnd']}' "
-					,
-					True
-				)
-			else:
-				query = database.execute(
-					"SELECT "
-					"* FROM `ticket`"
-					" WHERE "
-					f"user_id = '{session['id']}'"
-					,
-					True
-				)
+			rq = \
+				"SELECT c.fname, c.lname, date, a.fname, a.lname, b.type FROM ticket " \
+				"INNER JOIN student a on ticket.student_id = a.id " \
+				"INNER JOIN action b on ticket.action_id = b.id " \
+				"INNER JOIN user c on ticket.user_id = c.id " \
+				f"WHERE user_id = '{session['id']}' "
 
+			if ByDate:
+				rq += \
+					" AND date BETWEEN " \
+					f" '{rd['DateStart']}' " \
+					" AND " \
+					f" '{rd['DateEnd']}' "
+
+
+			query = database.execute(rq, True)
+			print(query)
 			return jsonify(query), 200
 
 		elif rd.get("ReportDropdown") == "name":
 			query = database.execute(
-				"SELECT * FROM `student`"
-				,
+				"SELECT fname, lname, t.shortname "
+				"FROM student "
+				"INNER JOIN school t on student.id = t.id",
 				True
 			)
+			print(query)
 
 		elif rd.get("ReportDropdown") == "student":
+			# Check here because only need it here.
+			if not rd.get("student_id").isnumeric():
+				return "", 400
+
 			if ByDate:
 				query = database.execute(
 					"SELECT * FROM `ticket`"

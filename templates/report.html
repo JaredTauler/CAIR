@@ -9,6 +9,7 @@
 {% block body %}
 <body>
     <form id="ReportForm">
+        <div>
         <span>
             <input
                 name = "DateStart"
@@ -106,11 +107,45 @@
             }).done(function (data) {
                 console.log(data)
                 ReportTable.hidden = false
-                var ReportTableTabulator = new Tabulator("#ReportTable", {
-                    data: data,
-                    autoColumns:true, //create columns from data field names
-                });
-
+                let choice = document.getElementById("ReportDropdown").value
+                if (choice === "name") {
+                    console.log(data)
+                    const ReportTableTabulator = new Tabulator("#ReportTable", {
+                        data: data,
+                        columns: [
+                            {
+                                title: "Student", field: "name", sorter: "string", width: 200,
+                                formatter: function (cell) {
+                                    let row = cell.getRow().getData();
+                                    return title(row["fname"]) + " " + title(row["lname"]);
+                                },
+                            },
+                            {
+                                title: "Home School", field: "shortname", sorter: "string",
+                            }
+                        ]
+                    });
+                } else if (choice === "user") {
+                     const ReportTableTabulator = new Tabulator("#ReportTable", {
+                        data: data,
+                        columns: [
+                            {
+                                title: "Student", field: "name", sorter: "string", width: 200,
+                                formatter: function (cell) {
+                                    let row = cell.getRow().getData();
+                                    return title(row["fname"]) + " " + title(row["lname"]);
+                                },
+                            },
+                            {
+                                title: "User", field: "user", sorter: "string",
+                                formatter: function (cell) {
+                                    let row = cell.getRow().getData();
+                                    return title(row["fname"]) + " " + title(row["lname"]);
+                                },
+                            }
+                        ]
+                    });
+                }
             })
 
 
