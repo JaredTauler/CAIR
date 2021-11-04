@@ -9,8 +9,7 @@ from sqlalchemy import create_engine
 from flask import Flask, abort, redirect, request, redirect, url_for, render_template, request, session, jsonify
 from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
-import mysql
-mysql.connector.connect()
+
 # import pusher
 import hashlib
 
@@ -27,12 +26,11 @@ class Database():
 	def __init__(self, engine):
 		self.engine = engine
 
-	def execute(self, query, ForJSON=False, NoResult=False):
+	def execute(self, query, ForJSON=False, NoResult=False, Columns=None):
 		with self.engine.connect() as connection:
 			result = connection.execute(query).cursor
 			if NoResult:
 				return True
-			description = result.description
 			fetch = result.fetchall()
 
 		if not ForJSON:
@@ -40,8 +38,11 @@ class Database():
 
 		# Prepare the data for JSON serialization
 		else:
-			print(description)
-			row_headers = [x[0] for x in description]
+			if Columns is None:
+				description = result.description
+				row_headers = [x[0] for x in description]
+			else:
+				row_headers = Columns
 			json_data = []
 			for result in fetch:
 				json_data.append(dict(zip(row_headers, result)))
@@ -76,6 +77,13 @@ db.create_all()
 database = Database(db.engine)
 
 # Main Program
+@app.template_global()
+def static_include(filename):
+	fullpath = os.path.join(app.static_folder, filename)
+	with open(fullpath, 'r') as f:
+		return f.read()
+
+
 @app.route("/", methods = ["GET"])
 def guide():
 	if not session.get("id"):
@@ -110,14 +118,18 @@ def report():
 		else:
 			ByDate = False
 
-
+		# Return all of a user's tickets.
 		if rd.get("ReportDropdown") == "user":
+
+			id = session['id']
+
+			col = ["user_fname", "user_lname", "date", "student_fname", "student_lname", "type"]
 			rq = \
 				"SELECT c.fname, c.lname, date, a.fname, a.lname, b.type FROM ticket " \
 				"INNER JOIN student a on ticket.student_id = a.id " \
 				"INNER JOIN action b on ticket.action_id = b.id " \
 				"INNER JOIN user c on ticket.user_id = c.id " \
-				f"WHERE user_id = '{session['id']}' "
+				f"WHERE user_id = '{id}' "
 
 			if ByDate:
 				rq += \
@@ -127,10 +139,23 @@ def report():
 					f" '{rd['DateEnd']}' "
 
 
-			query = database.execute(rq, True)
-			print(query)
-			return jsonify(query), 200
+			query = database.execute(rq, True, Columns=col)
+			from datetime import date, datetime
 
+			# TODO do this in other places?
+			def json_serial(obj):
+				if isinstance(obj, (datetime, date)):
+					print(obj.isoformat())
+
+					return obj.isoformat()
+				raise TypeError("Type %s not serializable" % type(obj))
+
+			# Flask's "jsonify" serializes datetime objects into a stupid looking string. Using JSON library, I can
+			# tell the serializer what to do when there's a datetime object, in this case it returns as string in
+			# ISO format.
+			return json.dumps(query, default=json_serial), 200
+
+		# Just return student's names
 		elif rd.get("ReportDropdown") == "name":
 			query = database.execute(
 				"SELECT fname, lname, t.shortname "
@@ -140,31 +165,27 @@ def report():
 			)
 			print(query)
 
+		# Return a student's tickets.
 		elif rd.get("ReportDropdown") == "student":
 			# Check here because only need it here.
 			if not rd.get("student_id").isnumeric():
 				return "", 400
 
+			id = rd["student_id"]
+			col = ["fname", "lname", "type", "date"]
+			rq = \
+				"SELECT student.fname, student.lname, action.type, date FROM `ticket` " \
+				"INNER JOIN `student` on ticket.student_id = student.id " \
+				f"INNER JOIN `action` on ticket.action_id = action.id WHERE student_id = '{id}' "
+
 			if ByDate:
-				query = database.execute(
-					"SELECT * FROM `ticket`"
-					" WHERE "
-					f"student_id = {rd['student_id']}"
-					" AND date BETWEEN "
-					f" '{rd['DateStart']}' "
-					" AND "
+				rq += \
+					" AND date BETWEEN " \
+					f" '{rd['DateStart']}' " \
+					" AND " \
 					f" '{rd['DateEnd']}' "
-					,
-					True
-				)
-			else:
-				query = database.execute(
-					"SELECT * FROM `ticket`"
-					" WHERE "
-					f"student_id = {rd['student_id']}"
-					,
-					True
-				)
+
+			query = database.execute(rq, True, Columns= col)
 
 		# Impossible
 		else:

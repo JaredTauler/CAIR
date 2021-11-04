@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% block head %}
 <head>
+    <title>CAIR Reports</title>
+<!--    Tabulator Setup-->
     <link href="https://unpkg.com/tabulator-tables@5.0.7/dist/css/tabulator.min.css" rel="stylesheet">
     <script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.0.7/dist/js/tabulator.min.js"></script>
 </head>
@@ -59,100 +61,9 @@
 
 {%  block script %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossOrigin="anonymous"></script>
-    <script>
-        // Populate lists #}
-            function title(str) {
-                return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-            }
-            let None = null
-            var values = {{ values|safe }}
-            var list = values["list"]
+    <script type="text/javascript">
+        const VALUES = {{ values|safe }} // IMPORTANT, this passes values passed to the jinja template to the JS file.
+        {{ static_include("report.js") | safe }}
 
-            for (let key in list) {
-                for (let i in list[key]) {
-                    row = list[key][i]
-                    console.log(row)
-                    let opt = document.createElement('option');
-
-                    // Decide how to handle data depending on what list is being drawn from. This seemed like the best
-                    // way to do it.
-
-                    if (key === "studentlist") {
-                        opt.text = "".concat(title(row["fname"]), " ", title(row["lname"]));
-                        opt.value = row["id"]
-                        document.getElementById("ReportStudentList").appendChild(opt)
-                    }
-                }
-            }
-
-        var ReportTable = document.getElementById("ReportTable")
-        var ReportTableTabulator = new Tabulator("#ReportTable", {
-            autoColumns:true, //create columns from data field names
-        });
-
-        // On fetch button click,
-        document.getElementById("ReportFetch").addEventListener("click", function(){
-            let formData = new FormData(document.getElementById("ReportForm")) // Get form data
-            // Post to server
-            $.ajax({
-                type: "POST",
-                url: window.location.href,
-                dataType: "json",
-                processData: false,
-                contentType: false,
-                encode: true,
-                data: formData,
-
-            // On response data:
-            }).done(function (data) {
-                console.log(data)
-                ReportTable.hidden = false
-                let choice = document.getElementById("ReportDropdown").value
-                if (choice === "name") {
-                    console.log(data)
-                    const ReportTableTabulator = new Tabulator("#ReportTable", {
-                        data: data,
-                        columns: [
-                            {
-                                title: "Student", field: "name", sorter: "string", width: 200,
-                                formatter: function (cell) {
-                                    let row = cell.getRow().getData();
-                                    return title(row["fname"]) + " " + title(row["lname"]);
-                                },
-                            },
-                            {
-                                title: "Home School", field: "shortname", sorter: "string",
-                            }
-                        ]
-                    });
-                } else if (choice === "user") {
-                     const ReportTableTabulator = new Tabulator("#ReportTable", {
-                        data: data,
-                        columns: [
-                            {
-                                title: "Student", field: "name", sorter: "string", width: 200,
-                                formatter: function (cell) {
-                                    let row = cell.getRow().getData();
-                                    return title(row["fname"]) + " " + title(row["lname"]);
-                                },
-                            },
-                            {
-                                title: "User", field: "user", sorter: "string",
-                                formatter: function (cell) {
-                                    let row = cell.getRow().getData();
-                                    return title(row["fname"]) + " " + title(row["lname"]);
-                                },
-                            }
-                        ]
-                    });
-                }
-            })
-
-
-            // event.preventDefault();
-            return false;
-        })
-
-
-     </script>
+    </script>
 {% endblock %}
