@@ -238,7 +238,7 @@ def entry():
 			# try:
 			query = database.execute(
 				"INSERT INTO `ticket` "
-					"(`student_id`, `action`, `comment`, `info`, `date`, `timestamp`, `user_id`) "
+					"(`student_id`, `action_id`, `comment`, `info`, `date`, `timestamp`, `user_id`) "
 				"VALUES "
 					f"('{rd.get('student_id')}', '{rd.get('action')}', '{rd.get('comment')}', '{rd.get('info')}', '{rd.get('date')}', CURRENT_TIMESTAMP, '{session['id']}')",
 				NoResult=True

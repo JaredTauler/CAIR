@@ -1,49 +1,9 @@
 {% extends "base.html" %}
 {% block head %}
 
-<meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0" />
-<meta name="apple-mobile-web-app-capable" content="yes" />
-<style>
-    /*{#.container {#}*/
-    /*{#    position: fixed;#}*/
-    /*{#    top: 50%;#}*/
-    /*{#    left: 50%;#}*/
-    /*{#    !* bring your own prefixes *!#}*/
-    /*{#    transform: translate(-50%, -50%);#}*/
-    /*{# }#}*/
-    /*{##}*/
-    /*{#         .container input {#}*/
-    /*{#    border-radius: 7px;#}*/
-    /*{#    margin: 0 auto;#}*/
-    /*{# }#}*/
-    /*{##}*/
-    /*{# .container input[type=submit] {#}*/
-    /*{#    display: block;#}*/
-    /*{#    background-color: #306bd2;#}*/
-    /*{##}*/
-    /*{#    border-style: none;#}*/
-    /*{#    color: white;#}*/
-    /*{#    padding: 6% 6%;#}*/
-    /*{#    width: 50%;#}*/
-    /*{#    text-align: center;#}*/
-    /*{#    font-size: 90%;#}*/
-    /*{#    opacity: .8;#}*/
-    /*{#    transition: 0.2s;#}*/
-    /*{##}*/
-    /*{# }#}*/
-    /*{#.container input[type=submit]:hover {opacity: 1}#}*/
-    /*{#.container input[type=text] {#}*/
-    /*{#    background-color: #FFFFFF;#}*/
-    /*{#    border: solid;#}*/
-    /*{#    color: black;#}*/
-    /*{#    padding: 3% 3%;#}*/
-    /*{##}*/
-    /*{#    font-size: 80%;#}*/
-    /*{##}*/
-    /*{#    border-width: thin;#}*/
-    /*{# }#}*/
-
-</style>
+    <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='entry.css') }}">
 {% endblock %}
 {% block body %}
     <body>
@@ -105,76 +65,8 @@
 
 {% endblock %}
 {%  block script %}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossOrigin="anonymous"></script>
-
     <script>
-        function title(str) {
-            return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-        }
-
-        function newoption(opt, key) {
-            let select = document.querySelector("#".concat(key));
-            select.appendChild(opt);
-        }
-
-        // Populate lists #}
-        {
-            let None = null
-            var values = {{ values|safe }};
-            var list = values["list"]
-
-            for (let key in list) {
-                for (let i in list[key]) {
-                    row = list[key][i]
-                    console.log(row)
-                    let opt = document.createElement('option');
-
-                    // Decide how to handle data depending on what list is being drawn from. This seemed like the best
-                    // way to do it.
-
-                    if (key === "studentlist") {
-                        opt.text = "".concat(title(row["fname"]), " ", title(row["lname"]));
-                        opt.value = row["id"]
-                    } else if (key === "action") {
-                        opt.text = "".concat(row["type"]);
-                        opt.value = row["id"];
-                    }
-
-                    newoption(opt, key);
-                }
-            }
-        }
-
-
-        // Form submission logic.
-        let form = document.querySelector("#mainform")
-        $("#mainform").submit(function (event) {
-             // Get all data from form.
-            let formData = new FormData(document.querySelector('#mainform'))
-
-            // Post to server
-            $.ajax({
-                type: "POST",
-                url: window.location.href,
-                dataType: "json",
-                processData: false,
-                contentType: false,
-                encode: true,
-                data: formData,
-
-            // On response data:
-            }).done(function (data) {
-                if (data["result"] === "pick") {
-                    openModal(PickStudent, data["query"])
-                }
-
-                return false
-            });
-
-            event.preventDefault();
-            return false;
-        });
-
-
-     </script>
+         const VALUES = {{ values|safe }}
+         {{ static_include("entry.js") | safe }}
+    </script>
 {% endblock %}

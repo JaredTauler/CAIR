@@ -3,51 +3,7 @@
 
     <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <style>
-
-
-
-        .container {
-          position: fixed;
-          top: 50%;
-          left: 50%;
-          /* bring your own prefixes */
-          transform: translate(-50%, -50%);
-        }
-
-        .container input {
-            border-radius: 7px;
-            margin: 0 auto;
-            width: 100%;
-            height: 100%;
-         }
-        .container input[type=submit] {
-            display: block;
-            background-color: #306bd2;
-
-            border-style: none;
-            color: white;
-            padding: 6% 6%;
-            width: 50%;
-            text-align: center;
-            font-size: 90%;
-            opacity: .8;
-            transition: 0.2s;
-
-        }
-        .container input[type=submit]:hover {opacity: 1}
-        .container input[type=text] {
-            background-color: #FFFFFF;
-            border: solid;
-            color: black;
-            padding: 3% 3%;
-
-            font-size: 80%;
-
-            border-width: thin;
-        }
-
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
 {% endblock %}
 {% block body %}
     <body>
@@ -65,62 +21,6 @@
 
 {% block script %}
     <script>
-        let username = document.querySelector("#username")
-        let password = document.querySelector("#password")
-        const FormElements = [username, password]
-        // Create a function that runs the check element function?... this is intentional, as
-        // just passing CheckElement() would give the RESULT of CheckElement() as the listener's function.
-        username.addEventListener("change", function(){CheckElement(username)});
-        password.addEventListener("change", function(){CheckElement(password)});
-
-        // TODO add more checks on the username and password.
-        function CheckElement(element) {
-            let text = element.value
-                console.log(text)
-                if (text === "") {
-                    return true
-                };
-            return false
-        };
-
-        $(document).ready(function () {
-            $("form").submit(function (event) {
-                let exit = false
-                // Check each element before going ahead with the POST.
-                FormElements.forEach(function (x, i)
-                    {if (CheckElement(x)) {
-                            exit = true
-                            return false // Break loop
-                        }
-                    }
-                )
-                if (exit) {return false} // Break function if loop found elements guilty.
-
-                console.log(username.attributes)
-                let formData = {
-                    "username": $("#username").val(),
-                    "password": $("#password").val(),
-                };
-                console.log(formData);
-                // Post to server
-                $.ajax({
-                    type: "POST",
-                    url: window.location.href,
-                    dataType: "json",
-                    encode: true,
-                    data: formData,
-                // On response data:
-                }).done(function (data) {
-                    if (data[0] === "redirect") {
-                        window.location.href = data[1]
-                    }
-                    // TODO Tell user why couldnt login.
-                });
-
-                event.preventDefault();
-                return false;
-            });
-        });
-
+        {{ static_include("login.js") | safe }}
     </script>
 {% endblock %}
