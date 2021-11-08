@@ -8,6 +8,17 @@ function newoption(opt, key) {
     select.appendChild(opt);
 }
 
+// Set date elements default to today's date
+// TODO A better way of doing this?
+{
+    var today = new Date();
+    var d = String(today.getDate()).padStart(2, '0');
+    var m = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    var y = today.getFullYear();
+    today = y + '-' + m + '-' + d;
+    document.getElementById('date').value = today;
+}
+
 // Populate lists #}
 {
     let None = null

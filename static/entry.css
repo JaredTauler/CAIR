@@ -1,0 +1,70 @@
+* {
+    box-sizing: border-box;
+    font: 1rem Tahoma, sans-serif
+}
+
+
+.main {
+    background-color: aquamarine;
+    display: grid;
+    justify-content: center;
+    justify-items: center;
+}
+
+/*.main input[type=button]{*/
+/*    color: black;*/
+/*}*/
+
+
+.button {
+    display: block;
+    background-color: red !important;
+    border-style: none;
+    color: white;
+    text-align: center;
+    font-size: 90%;
+    opacity: .8;
+    transition: 0.2s;
+}
+.button:hover {
+  filter: brightness(80%)
+}
+.button:active {
+  filter: brightness(120%)
+}
+
+.smooth {
+    margin: .2rem;
+    padding: .2rem;
+    border-radius: 4px;
+    background-color: white;
+    border-style: hidden;
+
+}
+
+.glowfocus:hover {
+    transition: 0.1s;
+    box-shadow: 0 0 1px 1px #306bd2;
+}
+
+.glowfocus:focus {
+    transition: 0.2s;
+    box-shadow: 0 0 3px 2px #306bd2;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+button:focus {
+    outline: none;
+}
+
+.formbox {
+    width: 20rem
+}
+@media only screen and (max-width: 20rem) {
+  .formbox {
+    width: 99vw
+}
+}
+

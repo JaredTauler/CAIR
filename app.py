@@ -83,7 +83,13 @@ def static_include(filename):
 	with open(fullpath, 'r') as f:
 		return f.read()
 
+@app.before_request
+def before_request_func():
+	if not session.get("id"):
+		return redirect(url_for("login"))
 
+
+# TODO get rid of
 @app.route("/", methods = ["GET"])
 def guide():
 	if not session.get("id"):
@@ -107,8 +113,9 @@ def report():
 	else: # POST
 		rd = request.form.to_dict()
 
+		# SQL Injection Prevention
 		if rd.get("ByDate") == "on":
-			# SQL Injection Prevention
+
 			if not IsDate(
 				[rd.get("DateStart"), rd.get("DateEnd")]
 			):
@@ -120,7 +127,8 @@ def report():
 
 		# Return all of a user's tickets.
 		if rd.get("ReportDropdown") == "user":
-
+			if not session.get("id"):
+				return "", 400
 			id = session['id']
 
 			col = ["user_fname", "user_lname", "date", "student_fname", "student_lname", "type"]
@@ -168,10 +176,12 @@ def report():
 		# Return a student's tickets.
 		elif rd.get("ReportDropdown") == "student":
 			# Check here because only need it here.
-			if not rd.get("student_id").isnumeric():
+			if rd.get("EntryBox") is None:
+				return "", 400
+			if not rd.get("EntryBox").isnumeric():
 				return "", 400
 
-			id = rd["student_id"]
+			id = rd["EntryBox"]
 			col = ["fname", "lname", "type", "date"]
 			rq = \
 				"SELECT student.fname, student.lname, action.type, date FROM `ticket` " \
@@ -184,10 +194,9 @@ def report():
 					f" '{rd['DateStart']}' " \
 					" AND " \
 					f" '{rd['DateEnd']}' "
-
+			# todo date thing doesnt work.
 			query = database.execute(rq, True, Columns= col)
 
-		# Impossible
 		else:
 			return "", 400
 

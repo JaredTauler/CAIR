@@ -127,3 +127,40 @@ document.getElementById("ReportFetch").addEventListener("click", function(){
     // event.preventDefault();
     return false;
 })
+// Report dropdown
+// {
+//     let Report = document.getElementById("ReportDropdown")
+//     let Date = document.getElementById("DateDropdown")
+//     let DateRange = {}
+//     // Date.addEventListener("change", function () {
+//     //
+//     // })
+//
+//     function SetDate(drop=null, start=null, end=null) {
+//         document.getElementById("DateDropdown").hidden = drop
+//         document.getElementById("DateStart").hidden = start
+//         document.getElementById("DateEnd").hidden = end
+//     }
+//
+//     Report.addEventListener("change", function () {
+//         if (Report.value === "name") {
+//             SetDate(true, true, true)
+//         } else if (Report.value === "student") {
+//             SetDate(false, true, true)
+//         } else if (Report.value === "user") {
+//             SetDate(false, true, true)
+//         }
+//     })
+//
+//     Date.addEventListener("change", function () {
+//         console.log("1")
+//         if (Date.value === "0") {
+//             SetDate(false, true, true)
+//         } else if (Date.value === "1") {
+//             SetDate(false, true, false)
+//         } else if (Date.value === "2") {
+//             SetDate(false, false, false)
+//         }
+//     })
+//
+// }

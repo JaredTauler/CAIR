@@ -50,27 +50,29 @@
               display: inline-block;
             }
 
+            /*MAIN*/
+
         </style>
         {% block head %}
         {% endblock %}
     </head>
 
     <body>
-        <div class="header" id="Header">
-            <h2>My Header</h2>
-            <div class="dropdown">
-              <button id="NavigationButton">Dropdown</button>
-              <div id="NavigationDropdown" class="dropdown-content">
-                <a class="button" href="#about">About</a>
-                <a class="button" href="#base">Base</a>
-                <a class="button" href="#blog">Blog</a>
-                <a class="button" href="#contact">Contact</a>
-                <a class="button" href="#custom">Custom</a>
-                <a class="button" href="#support">Support</a>
-                <a class="button" href="#tools">Tools</a>
-              </div>
-            </div>
-        </div>
+<!--        <div class="header" id="Header">-->
+<!--            <h2>My Header</h2>-->
+<!--            <div class="dropdown">-->
+<!--              <button id="NavigationButton">Dropdown</button>-->
+<!--              <div id="NavigationDropdown" class="dropdown-content">-->
+<!--                <a class="button" href="#about">About</a>-->
+<!--                <a class="button" href="#base">Base</a>-->
+<!--                <a class="button" href="#blog">Blog</a>-->
+<!--                <a class="button" href="#contact">Contact</a>-->
+<!--                <a class="button" href="#custom">Custom</a>-->
+<!--                <a class="button" href="#support">Support</a>-->
+<!--                <a class="button" href="#tools">Tools</a>-->
+<!--              </div>-->
+<!--            </div>-->
+<!--        </div>-->
 
         {% block body %}
         {% endblock %}
@@ -78,23 +80,6 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossOrigin="anonymous"></script>
     <script>
-        // for (i in document.getElementById("NavigationDropdown").children) {
-        //     let x = document.getElementById("NavigationDropdown").children[i]
-        //     console.log(x)
-        // }
-        var header = document.getElementById("Header");
-        var sticky = header.offsetTop;
-        window.onscroll = function() {
-          if (window.pageYOffset > sticky) {
-            header.classList.add("sticky");
-          } else {
-            header.classList.remove("sticky");
-          }
-        };
-
-        document.getElementById("NavigationButton").addEventListener("click", function () {
-            document.getElementById("NavigationDropdown").classList.toggle("show")
-        })
 
 
     </script>

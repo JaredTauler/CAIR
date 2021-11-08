@@ -8,16 +8,15 @@
 {% block body %}
     <body>
         <div class="container">
-            <form id = "mainform" class="maindiv">
-                <span>
-                    <input
-                            name="date"
-                            title="Date"
-                            id="date"
-                            type="date"
-                            style="float:left;" width="10px"
-                    >
-                </span><br>
+            <form id = "mainform" class="main">
+                <input
+                        name="date"
+                        title="Date"
+                        id="date"
+                        type="date"
+                        class="smooth glowfocus formbox"
+                        placeholder="date"
+                >
 
                 <input
                         name = "student_id"
@@ -26,16 +25,18 @@
                         id="student_id"
                         placeholder="Student ID"
                         list="studentlist"
-                ><br>
+                        class="smooth glowfocus formbox"
+                >
                 <datalist id="studentlist"></datalist>
 
                 <select
                         name = "action"
                         title="Intervention Type"
                         id="action"
+                        class="smooth glowfocus formbox"
                 >
                     <option value="" disabled selected hidden>Interaction Type</option>
-                </select><br>
+                </select>
 
                 <input
                         title="Additional Information"
@@ -44,19 +45,20 @@
                         name = "info"
                         placeholder="Additional Information"
                         list="infolist"
-                ><br>
+                        class="smooth glowfocus formbox"
+                >
                 <datalist id="infolist"></datalist>
 
                 <textarea
                         title="Comment"
                         id="comment"
                         name = "comment"
-                ></textarea><br>
-
-                <span>
-                    <button id="record" style="float:left;">Record</button>
-                    <input type="submit" value="Save" style="float:left;">
-                </span>
+                        class="smooth glowfocus formbox"
+                ></textarea>
+                <div style="display: grid">
+                    <button id="record" class="smooth button" style="grid-column: 1">Record</button>
+                    <input type="submit" value="Save" class="smooth button" style="grid-column: 2">
+                </div>
 
 
             </form>
