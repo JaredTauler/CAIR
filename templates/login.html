@@ -3,16 +3,19 @@
 
     <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='common.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='login/login.css') }}">
+
 {% endblock %}
 {% block body %}
     <body>
-        <div class="container" >
-            <form>
+        <div class="main" >
+            <img src="{{ url_for('static', filename='berklogo.png') }}" class="logo">
+            <form style="display: grid">
                 <p id="problem"></p>
-                <input type="text" id="username" placeholder="User ID"><br><br>
-                <input type="text" id="password" placeholder="Password"><br><br>
-                <input type="submit" value="Login">
+                <input type="text" id="username" placeholder="User ID" class="glowfocus smooth formbox"><br><br>
+                <input type="text" id="password" placeholder="Password" class="glowfocus smooth formbox"><br><br>
+                <input type="submit" value="Login" class="button smooth">
             </form>
 
         </div>
@@ -21,6 +24,6 @@
 
 {% block script %}
     <script>
-        {{ static_include("login.js") | safe }}
+        {{ static_include("login/login.js") | safe }}
     </script>
 {% endblock %}

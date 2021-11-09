@@ -1,0 +1,10 @@
+@media only screen and (max-width: 20rem) {
+  .formbox {
+    width: 95vw;
+}
+}
+
+.badbox {
+   transition: 0.2s;
+    box-shadow: 0 0 3px 2px red;
+}

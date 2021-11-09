@@ -1,56 +1,14 @@
 <html lang="en">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title></title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='base/base.css') }}">
+        <link rel="shortcut icon" type="image/x-icon" href="static/favicon.ico">
+        <title id="PageTitle"></title>
         <style>
             body {
                 margin: 0;
                 background-color: powderblue;
             }
-
-            /* HEADER */
-            .header {
-              padding: 10px 16px;
-              background: #555;
-              color: #f1f1f1;
-            }
-
-            .content {
-              padding: 16px;
-            }
-
-            .sticky {
-              position: fixed;
-              top: 0;
-              width: 100%
-            }
-
-            .sticky + .content {
-              padding-top: 102px;
-            }
-            /* NAVIGATION */
-            .dropdown-content {
-                  visibility: hidden;
-                  width: 100%;
-                  background-color: #fff;
-                  /*color: #fff;*/
-                  text-align: center;
-                  position: absolute;
-                  z-index: 1;
-
-            }
-
-
-            .show {
-                visibility: visible;
-            }
-
-            .dropdown {
-              position: relative;
-              display: inline-block;
-            }
-
-            /*MAIN*/
 
         </style>
         {% block head %}
@@ -58,21 +16,20 @@
     </head>
 
     <body>
-<!--        <div class="header" id="Header">-->
-<!--            <h2>My Header</h2>-->
-<!--            <div class="dropdown">-->
-<!--              <button id="NavigationButton">Dropdown</button>-->
-<!--              <div id="NavigationDropdown" class="dropdown-content">-->
-<!--                <a class="button" href="#about">About</a>-->
-<!--                <a class="button" href="#base">Base</a>-->
-<!--                <a class="button" href="#blog">Blog</a>-->
-<!--                <a class="button" href="#contact">Contact</a>-->
-<!--                <a class="button" href="#custom">Custom</a>-->
-<!--                <a class="button" href="#support">Support</a>-->
-<!--                <a class="button" href="#tools">Tools</a>-->
-<!--              </div>-->
-<!--            </div>-->
-<!--        </div>-->
+        <div class="HEADER">
+            <label id="HeaderTitle"></label>
+             <div class="dropdown" id="NavDropdown">
+                <button class="dropbtn">More
+                  <i class="fa fa-caret-down"></i>
+                </button>
+                <div class="dropdown-content">
+                  <button>Entry</button>
+                  <button>Report</button>
+<!--               TODO get these buttons working!-->
+<!--                  <a href="#"></a>-->
+                </div>
+             </div>
+        </div>
 
         {% block body %}
         {% endblock %}
@@ -80,9 +37,9 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossOrigin="anonymous"></script>
     <script>
-
-
+        {{ static_include("base/base.js") | safe }}
     </script>
+
     {% block script %}
     {% endblock %}
 </html>

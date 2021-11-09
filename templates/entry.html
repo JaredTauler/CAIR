@@ -3,7 +3,9 @@
 
     <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-    <link rel="stylesheet" href="{{ url_for('static', filename='entry.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='common.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='entry/entry.css') }}">
+
 {% endblock %}
 {% block body %}
     <body>
@@ -69,6 +71,6 @@
 {%  block script %}
     <script>
          const VALUES = {{ values|safe }}
-         {{ static_include("entry.js") | safe }}
+         {{ static_include("entry/entry.js") | safe }}
     </script>
 {% endblock %}

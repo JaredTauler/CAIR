@@ -1,0 +1,18 @@
+
+
+
+
+
+
+.logo {
+    width: 10rem;
+}
+
+@media only screen and (max-width: 20rem) {
+  .formbox {
+    width: 99vw
+    }
+  .logo {
+    width: 60vw
+    }
+}

@@ -1,3 +1,6 @@
+document.getElementById("HeaderTitle").textContent = "Reports"
+document.getElementById("PageTitle").textContent = "Reports"
+
 // Populate Lists
 function title(str) {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();

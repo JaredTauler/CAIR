@@ -230,7 +230,6 @@ def entry():
 			class DBerror(Exception): pass
 
 			rd = request.form.to_dict()
-
 			# Prevent SQL injection.
 			if not rd['student_id'].isnumeric(): return "", 400
 			# TODO secure other stuff

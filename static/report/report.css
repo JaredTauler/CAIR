@@ -60,11 +60,14 @@ button:focus {
 }
 
 .formbox {
-    width: 20rem
-}
-@media only screen and (max-width: 20rem) {
-  .formbox {
-    width: 99vw
-}
+    width: 10rem
 }
 
+.ReportTable {
+    width: calc(100% - 1rem);
+}
+@media only screen and (max-width: 20rem) {
+    .formbox {
+        width: 99vw
+    }
+}

@@ -1,19 +1,15 @@
-* {
-    box-sizing: border-box;
-    font: 1rem Tahoma, sans-serif
-}
-
-
 .main {
     background-color: aquamarine;
     display: grid;
     justify-content: center;
     justify-items: center;
+    margin-top: 20vh;
 }
 
-/*.main input[type=button]{*/
-/*    color: black;*/
-/*}*/
+* {
+    box-sizing: border-box;
+    font: 1rem Tahoma, sans-serif
+}
 
 
 .button {
@@ -60,9 +56,11 @@ button:focus {
 }
 
 .formbox {
-    width: 10rem
+    width: 20rem
 }
 
-.ReportTable {
-    width: calc(100% - 1rem);
+
+.badbox {
+   transition: 0.2s;
+    box-shadow: 0 0 3px 2px red;
 }
