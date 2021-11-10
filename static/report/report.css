@@ -34,8 +34,7 @@
 }
 
 .smooth {
-    margin: .2rem;
-    padding: .2rem;
+
     border-radius: 4px;
     background-color: white;
     border-style: hidden;
@@ -52,6 +51,11 @@
     box-shadow: 0 0 3px 2px #306bd2;
 }
 
+/*keep disabled stuff from glowing*/
+.glowfocus:disabled {
+    box-shadow: none !important;
+}
+
 input:focus,
 select:focus,
 textarea:focus,
@@ -60,11 +64,14 @@ button:focus {
 }
 
 .formbox {
-    width: 10rem
+    width: 10rem;
+    margin: .2rem;
+    padding: .2rem;
 }
 
 .ReportTable {
     width: calc(100% - 1rem);
+    height: 100vh; // 100%;
 }
 @media only screen and (max-width: 20rem) {
     .formbox {

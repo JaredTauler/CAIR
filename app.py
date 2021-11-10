@@ -2,7 +2,7 @@ import json
 import os
 import re
 
-import datetime
+from datetime import date, datetime
 import yaml
 from sqlalchemy import create_engine
 
@@ -49,21 +49,6 @@ class Database():
 		return json_data
 
 
-def IsDate(item):
-	if type(item) is list:
-		iter = item
-	else:
-		iter = []
-		iter.append(item)
-
-	for i in iter:
-		i = i.replace("-", "")  # remove dashes
-		if not i.isnumeric:  # Not a number
-			return False
-
-	return True
-
-
 # Prepare app
 app = Flask(__name__)
 app.secret_key = os.urandom(16)
@@ -76,6 +61,9 @@ sess = Session(app)
 db.create_all()
 database = Database(db.engine)
 
+# TODO add debug stuff?
+class Ignore400(Exception): pass
+
 # Main Program
 @app.template_global()
 def static_include(filename):
@@ -84,19 +72,10 @@ def static_include(filename):
 		return f.read()
 
 @app.before_request
-def before_request_func():
-	if not session.get("id"):
-		return redirect(url_for("login"))
-
-
-# TODO get rid of
-@app.route("/", methods = ["GET"])
+@app.route("/")
 def guide():
 	if not session.get("id"):
 		return redirect(url_for("login"))
-	else:
-		return redirect(url_for("report"))
-
 
 @app.route('/report', methods = ["GET", "POST"])
 def report():
@@ -108,62 +87,99 @@ def report():
 			f"SELECT id, fname, lname FROM `student`", True
 		)
 		data["list"]["studentlist"] = query
+
 		return render_template("report.html", values=data)
 
 	else: # POST
+		if not session.get("id"):
+			return "", 400
+
 		rd = request.form.to_dict()
+		print(rd)
 
-		# SQL Injection Prevention
-		if rd.get("ByDate") == "on":
+		def ByDate(start, end, HadWhere):
+			# if were getting by date...
+			if rd.get("DateStartCheckbox") == "on":
+				if not IsDate(start): raise Ignore400() #Ignore if doesnt look like a date.
 
-			if not IsDate(
-				[rd.get("DateStart"), rd.get("DateEnd")]
-			):
-				return "", 400
+				# End date?
+				if rd.get("DateEndCheckbox") == "on":
+					if not IsDate(end): raise Ignore400()
+
+				# only doing one date, end should be start
+				else:
+					end = start
+
+				s = ""
+				if not HadWhere:
+					s+= " WHERE "
+				elif HadWhere:
+					s += " AND "
+				s += \
+					" date BETWEEN " \
+					f" '{start}' " \
+					" AND " \
+					f" '{end}' "
+				return s
+
+			# Add nothing to string if not checkbox was false.
 			else:
-				ByDate = True
-		else:
-			ByDate = False
+				return ""
+
+# Flask's "jsonify" serializes datetime objects into a stupid looking string. Using JSON library, I can
+# tell the serializer what to do when there's a datetime object, in this case it returns as string in
+# ISO 8601 format.
+
+		def json_serial(obj):
+			if isinstance(obj, (datetime, date)):
+				print(obj.isoformat())
+
+				return obj.isoformat()
+			raise TypeError("Type %s not serializable" % type(obj))
+
+		def IsDate(item):
+			if type(item) is list:
+				iter = item
+			else:
+				iter = []
+				iter.append(item)
+
+			for i in iter:
+				i = i.replace("-", "")  # remove dashes
+				if not i.isnumeric:  # Not a number
+					return False
+
+			return True
 
 		# Return all of a user's tickets.
 		if rd.get("ReportDropdown") == "user":
-			if not session.get("id"):
-				return "", 400
-			id = session['id']
-
 			col = ["user_fname", "user_lname", "date", "student_fname", "student_lname", "type"]
+			HadWhere = False
 			rq = \
 				"SELECT c.fname, c.lname, date, a.fname, a.lname, b.type FROM ticket " \
 				"INNER JOIN student a on ticket.student_id = a.id " \
 				"INNER JOIN action b on ticket.action_id = b.id " \
-				"INNER JOIN user c on ticket.user_id = c.id " \
-				f"WHERE user_id = '{id}' "
+				"INNER JOIN user c on ticket.user_id = c.id "
 
-			if ByDate:
-				rq += \
-					" AND date BETWEEN " \
-					f" '{rd['DateStart']}' " \
-					" AND " \
-					f" '{rd['DateEnd']}' "
+			entry = rd.get("EntryBox")
+			if entry is None or entry == "":
+				HadWhere = True
+				rq += f" WHERE user_id = '{session['id']}' "
+			elif not entry.isnumeric():
+				raise Ignore400()
+			else:
+				HadWhere = True
+				rq += f" WHERE user_id = '{entry}' "
 
+			rq += ByDate(
+				rd.get("DateStart"), rd.get("DateEnd"), HadWhere
+			)
 
 			query = database.execute(rq, True, Columns=col)
-			from datetime import date, datetime
 
-			# TODO do this in other places?
-			def json_serial(obj):
-				if isinstance(obj, (datetime, date)):
-					print(obj.isoformat())
-
-					return obj.isoformat()
-				raise TypeError("Type %s not serializable" % type(obj))
-
-			# Flask's "jsonify" serializes datetime objects into a stupid looking string. Using JSON library, I can
-			# tell the serializer what to do when there's a datetime object, in this case it returns as string in
-			# ISO format.
 			return json.dumps(query, default=json_serial), 200
 
-		# Just return student's names
+		# Just return student's names + school
 		elif rd.get("ReportDropdown") == "name":
 			query = database.execute(
 				"SELECT fname, lname, t.shortname "
@@ -171,34 +187,35 @@ def report():
 				"INNER JOIN school t on student.id = t.id",
 				True
 			)
-			print(query)
 
 		# Return a student's tickets.
 		elif rd.get("ReportDropdown") == "student":
-			# Check here because only need it here.
-			if rd.get("EntryBox") is None:
-				return "", 400
-			if not rd.get("EntryBox").isnumeric():
-				return "", 400
-
-			id = rd["EntryBox"]
 			col = ["fname", "lname", "type", "date"]
+			HadWhere = False
 			rq = \
 				"SELECT student.fname, student.lname, action.type, date FROM `ticket` " \
 				"INNER JOIN `student` on ticket.student_id = student.id " \
-				f"INNER JOIN `action` on ticket.action_id = action.id WHERE student_id = '{id}' "
+				f"INNER JOIN `action` on ticket.action_id = action.id "
 
-			if ByDate:
-				rq += \
-					" AND date BETWEEN " \
-					f" '{rd['DateStart']}' " \
-					" AND " \
-					f" '{rd['DateEnd']}' "
-			# todo date thing doesnt work.
+			entry = rd.get('EntryBox')
+			if entry is None or entry == "":
+				pass
+
+			# If not none and not numeric, 400
+			elif not entry.isnumeric():
+				raise Ignore400()
+			else:
+				HadWhere = True
+				rq += f" WHERE student_id = '{entry}' "
+
+			rq += ByDate(
+				rd.get("DateStart"), rd.get("DateEnd"), HadWhere
+			)
+
 			query = database.execute(rq, True, Columns= col)
 
 		else:
-			return "", 400
+			return Ignore400()
 
 		return jsonify(query), 200
 
@@ -206,9 +223,6 @@ def report():
 
 @app.route('/entry', methods = ["GET", "POST"])
 def entry():
-	if not session.get("id"):
-		return redirect(url_for("login"))
-
 	if request.method == "GET":
 		data = {}
 		data["list"] = {}
@@ -230,6 +244,7 @@ def entry():
 			class DBerror(Exception): pass
 
 			rd = request.form.to_dict()
+			print(rd)
 			# Prevent SQL injection.
 			if not rd['student_id'].isnumeric(): return "", 400
 			# TODO secure other stuff

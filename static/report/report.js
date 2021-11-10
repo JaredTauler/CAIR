@@ -33,6 +33,9 @@ var ReportTableTabulator = new Tabulator("#ReportTable", {
 // On fetch button click,
 document.getElementById("ReportFetch").addEventListener("click", function(){
     let formData = new FormData(document.getElementById("ReportForm")) // Get form data
+    for (var pair of formData.entries()) {
+         console.log(pair[0]+ ': ' + pair[1]);
+    }
     // Post to server
     $.ajax({
         type: "POST",
@@ -65,7 +68,8 @@ document.getElementById("ReportFetch").addEventListener("click", function(){
                     }
                 ]
             });
-        } else if (choice === "user") {
+        }
+        else if (choice === "user") {
              const ReportTableTabulator = new Tabulator("#ReportTable", {
                 data: data,
                 columns: [
@@ -89,7 +93,7 @@ document.getElementById("ReportFetch").addEventListener("click", function(){
                         formatter: function (cell) {
                             let row = cell.getRow().getData();
                             let d = new Date(row["date"])
-                            let s = d.toLocaleDateString("en-US")
+                            let s = d.toLocaleDateString('en-US', {timeZone: 'UTC'})
                             return s
                         },
                     },
@@ -98,7 +102,8 @@ document.getElementById("ReportFetch").addEventListener("click", function(){
                     }
                 ]
             });
-        } else if (choice === "student") {
+        }
+        else if (choice === "student") {
             const ReportTableTabulator = new Tabulator("#ReportTable", {
                 data: data,
                 columns: [
@@ -114,7 +119,7 @@ document.getElementById("ReportFetch").addEventListener("click", function(){
                         formatter: function (cell) {
                             let row = cell.getRow().getData();
                             let d = new Date(row["date"])
-                            let s = d.toLocaleDateString("en-US")
+                            let s = d.toLocaleDateString('en-US', {timeZone: 'UTC'})
                             return s
                         },
                     },
@@ -130,40 +135,114 @@ document.getElementById("ReportFetch").addEventListener("click", function(){
     // event.preventDefault();
     return false;
 })
-// Report dropdown
-// {
-//     let Report = document.getElementById("ReportDropdown")
-//     let Date = document.getElementById("DateDropdown")
-//     let DateRange = {}
-//     // Date.addEventListener("change", function () {
-//     //
-//     // })
-//
-//     function SetDate(drop=null, start=null, end=null) {
-//         document.getElementById("DateDropdown").hidden = drop
-//         document.getElementById("DateStart").hidden = start
-//         document.getElementById("DateEnd").hidden = end
-//     }
-//
-//     Report.addEventListener("change", function () {
-//         if (Report.value === "name") {
-//             SetDate(true, true, true)
-//         } else if (Report.value === "student") {
-//             SetDate(false, true, true)
-//         } else if (Report.value === "user") {
-//             SetDate(false, true, true)
-//         }
-//     })
-//
-//     Date.addEventListener("change", function () {
-//         console.log("1")
-//         if (Date.value === "0") {
-//             SetDate(false, true, true)
-//         } else if (Date.value === "1") {
-//             SetDate(false, true, false)
-//         } else if (Date.value === "2") {
-//             SetDate(false, false, false)
-//         }
-//     })
-//
-// }
+
+// Logic for when date elements should be disabled or enabled.
+// Im sure there is a much more simpler way of doing this. I dont know that way, but this works flawlessly and efficently.
+{
+    let StartCheckBox = document.getElementById("DateStartCheckbox")
+    StartCheckBox.addEventListener("change", function () {
+        DateState(CheckBoxDecide({}))
+    })
+    let EndCheckBox = document.getElementById("DateEndCheckbox")
+    EndCheckBox.addEventListener("change", function () {
+        DateState(CheckBoxDecide({}))
+    })
+
+    function CheckBoxDecide(arr) {
+        // If one checkbox is changed, both check boxes will have their associated
+        // elements updated according to their current state.
+        // This is unncecessary but probably wont cause any problems.
+        // FIXME?
+        if(StartCheckBox.checked) {
+            arr["DateStart"] = false
+            arr["DateEndCheckbox"] = false
+        }
+        else {
+            arr["DateStart"] = true
+            arr["DateEndCheckbox"] = true
+            EndCheckBox.checked = false
+        }
+
+        if(EndCheckBox.checked) {arr["DateEnd"] = false}
+        else {arr["DateEnd"] = true}
+
+        return arr
+    }
+
+    function DateState (arr) {
+        for (let i in arr) {
+            document.getElementById(i).disabled = arr[i]
+        }
+    }
+
+    let DropDown = document.getElementById("ReportDropdown")
+
+    DropDown.addEventListener("change", function() {DropDownDecide()})
+    function DropDownDecide () {
+         // May as well do entrybox placeholder while were here.
+        function EntryText (s) {
+            document.getElementById("EntryBox").placeholder = s
+        }
+
+        let state = false
+
+        if (DropDown.value === "name") {
+            state = true
+            EntryText("")
+        }
+        else if (DropDown.value === "student") {
+            state = false
+            EntryText("Student ID")
+        }
+        else if (DropDown.value === "user") {
+            state = false
+            EntryText("User ID")
+        }
+        else {
+            state = true
+            EntryText("")
+        }
+
+        // List of elements to be updated
+        let ElemArray = {
+            "DateStart": state, "DateEnd": state,
+            "DateStartCheckbox": state, "DateEndCheckbox": state,
+            "EntryBox": state
+
+        }
+
+        // If the disabled property is being set to false, run the Checkbox logic with the previously made array to see
+        // if any elements need to be left disabled.
+        if (state === false) {
+            ElemArray = CheckBoxDecide(ElemArray)
+        }
+
+        DateState(ElemArray)
+    }
+
+    DropDownDecide() // Run when page starts
+}
+
+// Set date element's date.
+{
+    {
+        Date.prototype.addDays = function(days) {
+            var date = new Date(this.valueOf());
+            date.setDate(date.getDate() + days);
+            return date;
+        }
+
+        function DatePlaceholder (date) {
+            var d = String(date.getDate()).padStart(2, '0');
+            var m = String(date.getMonth() + 1).padStart(2, '0'); //January is 0!
+            var y = date.getFullYear();
+            date = y + '-' + m + '-' + d;
+            return date;
+        }
+
+        let today = new Date();
+        document.getElementById('DateStart').value = DatePlaceholder(today);
+        document.getElementById('DateEnd').value = DatePlaceholder(today.addDays(1));
+
+    }
+}
