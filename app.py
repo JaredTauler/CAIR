@@ -71,11 +71,14 @@ def static_include(filename):
 	with open(fullpath, 'r') as f:
 		return f.read()
 
+
 @app.before_request
-@app.route("/")
 def guide():
 	if not session.get("id"):
 		return redirect(url_for("login"))
+	elif request.path == "/":
+		return redirect(url_for("report")) # TODO set a default
+
 
 @app.route('/report', methods = ["GET", "POST"])
 def report():
@@ -355,6 +358,7 @@ def login():
 			return jsonify(["bad", info]), 200
 
 
+# TODO temporary
 @app.route("/newuser", methods = ["GET", "POST"])
 def Usermake():
 	print(request.form.getlist('username[]'))
