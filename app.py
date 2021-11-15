@@ -6,7 +6,7 @@ from datetime import date, datetime
 import yaml
 from sqlalchemy import create_engine
 
-from flask import Flask, abort, redirect, request, redirect, url_for, render_template, request, session, jsonify
+from flask import Flask, abort, redirect, url_for, render_template, request, session, jsonify
 from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
 
@@ -14,8 +14,10 @@ from flask_sqlalchemy import SQLAlchemy
 import hashlib
 
 # pusher_client.trigger('my-channel', 'my-event', {'message': 'hello world'})
+
 os.chdir("C:\\Users\\Student\\PycharmProjects\\CAIR")
 # os.chdir("C:\\Users\\Jared\\PycharmProjects\\CAIR")
+
 with open("config.yaml", "r") as f:
 	cfg = yaml.safe_load(f)
 
@@ -61,10 +63,32 @@ sess = Session(app)
 db.create_all()
 database = Database(db.engine)
 
-# TODO add debug stuff?
-class Ignore400(Exception): pass
+# Routes not logged in users can access.
+# Should keep in mind everything listed here will be open to the prying eyes of anybody with internet and a computer.
+# TODO remember to keep this updated
+NoLoginWhitelist = [
+	"/login",
+	"/static/login/login.css", "/static/base/base.css", "/static/common.css",
+	"/static/login/login.js", "/static/base/base.js",
+	"/static/berklogo.png", "/static/favicon.ico",
 
-# Main Program
+]
+
+# TODO better way of keeping unauthorized users out?
+@app.before_request
+def guide():
+	if not session.get("id"): # If not logged in,
+		if request.path == "/":  # If at root, redirect
+			return redirect(url_for("login"))
+		if not request.path in NoLoginWhitelist: # If accessing a whitelisted route,
+			abort(401)
+
+
+class Ignore400(Exception): pass # TODO add debug stuff?
+
+
+#### Main Program ####
+# For jinja
 @app.template_global()
 def static_include(filename):
 	fullpath = os.path.join(app.static_folder, filename)
@@ -72,12 +96,17 @@ def static_include(filename):
 		return f.read()
 
 
-@app.before_request
-def guide():
-	if not session.get("id"):
-		return redirect(url_for("login"))
-	elif request.path == "/":
-		return redirect(url_for("report")) # TODO set a default
+### Routes ###
+# YUTA do homepage
+@app.route('/home', methods = ["GET", "POST"])
+def home():
+	return "home placeholder"
+
+
+@app.route('/logout', methods = ["GET"])
+def logout():
+	session.pop("id")
+	return guide()
 
 
 @app.route('/report', methods = ["GET", "POST"])
@@ -90,7 +119,6 @@ def report():
 			f"SELECT id, fname, lname FROM `student`", True
 		)
 		data["list"]["studentlist"] = query
-
 		return render_template("report.html", values=data)
 
 	else: # POST
@@ -223,7 +251,6 @@ def report():
 		return jsonify(query), 200
 
 
-
 @app.route('/entry', methods = ["GET", "POST"])
 def entry():
 	if request.method == "GET":
@@ -287,11 +314,6 @@ def entry():
 
 @app.route('/login', methods = ["GET", "POST"])
 def login():
-	print(request.method)
-	# if session.get("logged_in"):
-	# 	return redirect(url_for("entry"))
-
-	# Serve login page.
 	if request.method == "GET":
 		return render_template("login.html")
 
@@ -342,7 +364,7 @@ def login():
 			if hashed == fromDB["password"]:
 				session["id"] = fromDB["id"]
 				print("Logged in")
-				return jsonify(["redirect", url_for("guide")]), 200
+				return jsonify(["redirect", url_for("home")]), 200
 
 			else:
 				raise BadPassword()
