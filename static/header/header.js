@@ -10,35 +10,15 @@
         NavDropdown.classList.remove("active")
     })
 }
-
-// TODO Logout button
-{
-    let button = document.getElementById("LogoutButton")
-    button.addEventListener("click", function () {
-        var xhttp = new XMLHttpRequest();
-        xhttp.onreadystatechange = function() {
-            if (this.readyState == 4 && this.status == 200) {
-            window.location.replace(window.location)
+function Logout () {
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            window.location.replace("login")
         }
-        };
+    };
 
     xhttp.open("POST", "logout", true);
     xhttp.send();
-    })
-
-    //Jquery or vanilla JS???
-
-
-    //     $.ajax({
-    //     type: "POST",
-    //     url: window.location.href,
-    //     dataType: "json",
-    //     processData: false,
-    //     contentType: false,
-    //     encode: true,
-    //     data: formData,
-    //
-    // // On response data:
-    // }).done(function (data) {
-    // })
 }
+

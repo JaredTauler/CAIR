@@ -1,20 +1,19 @@
 .header {
     background-color: yellow;
     position: sticky;
-    /*FIXME This is not a good fix and will probably break*/
+    /*FIXME This is not a good fix and could break*/
     z-index: 999;
     top: 0;
     display: grid;
+    width: 100vw;
 }
 
+.headerbutton {
+  width: fit-content;
+}
 
 /*TODO make dropdown prettier*/
 /* The dropdown container */
-    .dropdown {
-      float: left;
-      overflow: hidden;
-    }
-
     /* Dropdown content (hidden by default) */
     .dropdown-content {
       display: none;
@@ -31,7 +30,6 @@
       color: black;
       padding: 12px 16px;
       text-decoration: none;
-      display: block;
       text-align: left;
     }
 
@@ -42,5 +40,5 @@
 
     /* Show the dropdown menu on hover */
     .active .dropdown-content{
-      display: block;
+      display: grid;
     }

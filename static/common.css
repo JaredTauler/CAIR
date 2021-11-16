@@ -1,16 +1,18 @@
-.main {
-    background-color: aquamarine;
-    display: grid;
-    justify-content: center;
-    justify-items: center;
-    margin-top: 20vh;
-}
-
 * {
     box-sizing: border-box;
     font: 1rem Tahoma, sans-serif
 }
 
+
+.main {
+    background-color: aquamarine;
+    display: grid;
+    justify-content: center;
+    justify-items: center;
+    height: 100vh;
+    grid-template-rows: max-content max-content;
+
+}
 
 .button {
     display: block;
@@ -30,8 +32,7 @@
 }
 
 .smooth {
-    margin: .2rem;
-    padding: .2rem;
+
     border-radius: 4px;
     background-color: white;
     border-style: hidden;
@@ -48,12 +49,24 @@
     box-shadow: 0 0 3px 2px #306bd2;
 }
 
+/*keep disabled stuff from glowing*/
+.glowfocus:disabled {
+    box-shadow: none !important;
+}
+
 input:focus,
 select:focus,
 textarea:focus,
 button:focus {
     outline: none;
 }
+
+.formbox {
+    width: 10rem;
+    margin: .2rem;
+    padding: .2rem;
+}
+
 
 .formbox {
     width: 20rem

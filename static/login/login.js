@@ -48,7 +48,12 @@ $(document).ready(function () {
         // On response data:
         }).done(function (data) {
             if (data[0] === "redirect") {
+                let cookie = JSON.parse(document.cookie)
+                cookie["logged_in"] = true
+                document.cookie = JSON.stringify(cookie)
                 window.location.href = data[1]
+
+
             }
             // TODO Tell user why couldnt login.
         });

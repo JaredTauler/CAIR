@@ -1,6 +1,3 @@
-document.getElementById("HeaderTitle").textContent = "Entry"
-document.getElementById("PageTitle").textContent = "Entry"
-
 // TODO cleanup!!!
 function title(str) {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();

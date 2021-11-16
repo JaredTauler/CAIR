@@ -1,6 +1,3 @@
-document.getElementById("HeaderTitle").textContent = "Reports"
-document.getElementById("PageTitle").textContent = "Reports"
-
 // Populate Lists
 function title(str) {
     return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
@@ -50,6 +47,7 @@ document.getElementById("ReportFetch").addEventListener("click", function(){
     }).done(function (data) {
         console.log(data)
         ReportTable.hidden = false
+        document.getElementById("ReportTable").hidden = false
         let choice = document.getElementById("ReportDropdown").value
         if (choice === "name") {
             console.log(data)

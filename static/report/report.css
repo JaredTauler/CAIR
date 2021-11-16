@@ -1,80 +1,12 @@
-* {
-    box-sizing: border-box;
-    font: 1rem Tahoma, sans-serif
-}
-
-
-.main {
-    background-color: aquamarine;
-    display: grid;
-    justify-content: center;
-    justify-items: center;
-}
-
-/*.main input[type=button]{*/
-/*    color: black;*/
-/*}*/
-
-
-.button {
-    display: block;
-    background-color: red !important;
-    border-style: none;
-    color: white;
-    text-align: center;
-    font-size: 90%;
-    opacity: .8;
-    transition: 0.2s;
-}
-.button:hover {
-  filter: brightness(80%)
-}
-.button:active {
-  filter: brightness(120%)
-}
-
-.smooth {
-
-    border-radius: 4px;
-    background-color: white;
-    border-style: hidden;
-
-}
-
-.glowfocus:hover {
-    transition: 0.1s;
-    box-shadow: 0 0 1px 1px #306bd2;
-}
-
-.glowfocus:focus {
-    transition: 0.2s;
-    box-shadow: 0 0 3px 2px #306bd2;
-}
-
-/*keep disabled stuff from glowing*/
-.glowfocus:disabled {
-    box-shadow: none !important;
-}
-
-input:focus,
-select:focus,
-textarea:focus,
-button:focus {
-    outline: none;
-}
-
-.formbox {
-    width: 10rem;
-    margin: .2rem;
-    padding: .2rem;
-}
-
 .ReportTable {
-    width: calc(100% - 1rem);
-    height: 100vh; // 100%;
+    max-height: 100%;
+    height: fit-content;
 }
 @media only screen and (max-width: 20rem) {
     .formbox {
-        width: 99vw
+        width: 45vw;
+        box-sizing:border-box;
+
+
     }
 }

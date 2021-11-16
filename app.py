@@ -68,8 +68,8 @@ database = Database(db.engine)
 # TODO remember to keep this updated
 NoLoginWhitelist = [
 	"/login",
-	"/static/login/login.css", "/static/base/base.css", "/static/common.css",
-	"/static/login/login.js", "/static/base/base.js",
+	"/static/login/login.css", "/static/base/base.css", "/static/common.css", "/static/header/header.css",
+	"/static/login/login.js", "/static/base/base.js", "/static/header/header.js",
 	"/static/berklogo.png", "/static/favicon.ico",
 
 ]
@@ -82,6 +82,9 @@ def guide():
 			return redirect(url_for("login"))
 		if not request.path in NoLoginWhitelist: # If accessing a whitelisted route,
 			abort(401)
+	else:
+		if request.path == "/":
+			return redirect(url_for("home"))
 
 
 class Ignore400(Exception): pass # TODO add debug stuff?
@@ -103,10 +106,11 @@ def home():
 	return "home placeholder"
 
 
-@app.route('/logout', methods = ["GET"])
+@app.route('/logout', methods = ["POST"])
 def logout():
+	# No need to check if given session has id. guide() should take care of that.
 	session.pop("id")
-	return guide()
+	return "", 200
 
 
 @app.route('/report', methods = ["GET", "POST"])

@@ -1,76 +1,72 @@
 {% extends "base.html" %}
-{% block head %}
 
+{% block head %}
     <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
-<link rel="stylesheet" href="{{ url_for('static', filename='common.base.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='entry/entry.base.css') }}">
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='common.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='entry/entry.css') }}">
 {% endblock %}
-{% block body %}
-    <body>
-        <div class="container">
-            <form id = "mainform" class="main">
-                <input
-                        name="date"
-                        title="Date"
-                        id="date"
-                        type="date"
-                        class="smooth glowfocus formbox"
-                        placeholder="date"
-                >
 
-                <input
-                        name = "student_id"
-                        title="Student Name"
-                        type="text"
-                        id="student_id"
-                        placeholder="Student ID"
-                        list="studentlist"
-                        class="smooth glowfocus formbox"
-                >
-                <datalist id="studentlist"></datalist>
+{% block content %}
+<form id = "mainform" class="form">
+    <input
+            name="date"
+            title="Date"
+            id="date"
+            type="date"
+            class="smooth glowfocus formbox"
+            placeholder="date"
+    >
 
-                <select
-                        name = "action"
-                        title="Intervention Type"
-                        id="action"
-                        class="smooth glowfocus formbox"
-                >
-                    <option value="" disabled selected hidden>Interaction Type</option>
-                </select>
+    <input
+            name = "student_id"
+            title="Student Name"
+            type="text"
+            id="student_id"
+            placeholder="Student ID"
+            list="studentlist"
+            class="smooth glowfocus formbox"
+    >
+    <datalist id="studentlist"></datalist>
 
-                <input
-                        title="Additional Information"
-                        type="text"
-                        id="info"
-                        name = "info"
-                        placeholder="Additional Information"
-                        list="infolist"
-                        class="smooth glowfocus formbox"
-                >
-                <datalist id="infolist"></datalist>
+    <select
+            name = "action"
+            title="Intervention Type"
+            id="action"
+            class="smooth glowfocus formbox"
+    >
+        <option value="" disabled selected hidden>Interaction Type</option>
+    </select>
 
-                <textarea
-                        title="Comment"
-                        id="comment"
-                        name = "comment"
-                        class="smooth glowfocus formbox"
-                ></textarea>
-                <div style="display: grid">
-                    <button id="record" class="smooth button" style="grid-column: 1">Record</button>
-                    <input type="submit" value="Save" class="smooth button" style="grid-column: 2">
-                </div>
+    <input
+            title="Additional Information"
+            type="text"
+            id="info"
+            name = "info"
+            placeholder="Additional Information"
+            list="infolist"
+            class="smooth glowfocus formbox"
+    >
+    <datalist id="infolist"></datalist>
 
-
-            </form>
-        </div>
+    <textarea
+            title="Comment"
+            id="comment"
+            name = "comment"
+            class="smooth glowfocus formbox"
+    ></textarea>
+    <div style="display: grid">
+        <button id="record" class="smooth button" style="grid-column: 1">Record</button>
+        <input type="submit" value="Save" class="smooth button" style="grid-column: 2">
+    </div>
 
 
+</form>
 {% endblock %}
+
 {%  block script %}
-    <script>
-         const VALUES = {{ values|safe }}
-         {{ static_include("entry/entry.js") | safe }}
-    </script>
+<script>
+     const VALUES = {{ values|safe }}
+     {{ static_include("entry/entry.js") | safe }}
+</script>
 {% endblock %}

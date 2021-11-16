@@ -8,3 +8,12 @@
    transition: 0.2s;
     box-shadow: 0 0 3px 2px red;
 }
+.form {
+    background-color: aquamarine;
+    display: grid;
+    justify-content: center;
+    justify-items: center;
+    height: fit-content;
+    grid-template-rows: max-content max-content;
+
+}
