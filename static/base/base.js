@@ -1,3 +1,7 @@
+// Detect if mobile
+// TODO good way of doing this?
+const isMobile = window.matchMedia("only screen and (max-width: 760px)").matches;
+
 // Cookie om nom nom
 {
     // If not logged in, redirect to login screen.
@@ -24,4 +28,11 @@ function HeaderTitle (s) {
     try {
         document.getElementById("HeaderTitle").textContent = s
     } catch (e) {console.log("Couldnt set header title!")}
+}
+
+// DEBUG
+function FormDataPrint (v) {
+    for (var pair of v.entries()) {
+     console.log(pair[0]+ ': ' + pair[1]);
+    }
 }

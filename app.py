@@ -1,3 +1,5 @@
+# Jared Tauler 10/20/21
+
 import json
 import os
 import re
@@ -126,6 +128,7 @@ def report():
 		return render_template("report.html", values=data)
 
 	else: # POST
+		#FIXME this explodes sometimes?
 		if not session.get("id"):
 			return "", 400
 
