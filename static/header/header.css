@@ -6,11 +6,24 @@
     top: 0;
     display: grid;
     width: 100vw;
+    justify-content: center;
 }
+
+.headercontent {
+    max-width: 60rem;
+    min-width: 40rem;
+    width: 50vw;
+}
+
 
 .headerbutton {
   width: fit-content;
 }
+
+.dropdown {
+    float: right;
+}
+
 
 /*TODO make dropdown prettier*/
 /* The dropdown container */
@@ -42,3 +55,13 @@
     .active .dropdown-content{
       display: grid;
     }
+
+
+@media only screen and (max-width: 40rem) {
+    .headercontent {
+        min-width: 100vw;
+       box-sizing:border-box;
+
+
+   }
+}

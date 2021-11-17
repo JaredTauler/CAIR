@@ -1,20 +1,21 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='header/header.css') }}">
 <body>
     <div class="header">
-        <label id="HeaderTitle"></label>
-        <div class="dropdown" id="NavDropdown">
-            <button>More
-              <i class="fa fa-caret-down"></i>
-            </button>
-            <div class="dropdown-content">
-                <input type="button" value="Reports" onclick="window.location.replace('report')">
-                <input type="button" value="Entry" onclick="window.location.replace('entry')">
-                <input type="button" value="Logout" onclick="Logout()">
-            <!--               TODO get these buttons working!-->
+        <div class="headercontent">
+            <label id="HeaderTitle"></label>
+            <div class="dropdown" id="NavDropdown">
+                <button>More
+                  <i class="fa fa-caret-down"></i>
+                </button>
+                <div class="dropdown-content">
+                    <input type="button" value="Reports" onclick="window.location.replace('report')">
+                    <input type="button" value="Entry" onclick="window.location.replace('entry')">
+                    <input type="button" value="Logout" onclick="Logout()">
+                <!--               TODO get these buttons working!-->
+                </div>
+
             </div>
-
         </div>
-
     </div>
 </body>
 <script>

@@ -1,5 +1,4 @@
-document.getElementById("HeaderTitle").textContent = "Attendance Centralized Interaction Reporting"
-document.getElementById("PageTitle").textContent = "Login"
+HeaderTitle("Attendance Centralized Interaction Reporting")
 
 let username = document.querySelector("#username")
 let password = document.querySelector("#password")

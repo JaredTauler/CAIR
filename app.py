@@ -103,7 +103,7 @@ def static_include(filename):
 # YUTA do homepage
 @app.route('/home', methods = ["GET", "POST"])
 def home():
-	return "home placeholder"
+	return render_template("home.html")
 
 
 @app.route('/logout', methods = ["POST"])

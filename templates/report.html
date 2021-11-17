@@ -2,7 +2,7 @@
 {% block head %}
 <head>
     <title>CAIR Reports</title>
- <link rel="stylesheet" href="{{ url_for('static', filename='common.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='common.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='report/report.css') }}">
 
 
@@ -10,51 +10,47 @@
     <link href="https://unpkg.com/tabulator-tables@5.0.7/dist/css/tabulator.min.css" rel="stylesheet">
     <script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.0.7/dist/js/tabulator.min.js"></script>
 
-<!--    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossOrigin="anonymous"></script>-->
-
 </head>
 {% endblock %}
 
 {% block content %}
-<body>
-        <form id="ReportForm" style="display: grid;">
-                <input name="DateStart" id="DateStart" title="Start Date" type="date" style="grid-column-start: 1;" class="smooth glowfocus formbox" placeholder="date">
+<form id="ReportForm" class="FormContainer">
+        <input name="DateStart" id="DateStart" title="Start Date" type="date" style="grid-column-start: 1;" class="smooth glowfocus formbox" placeholder="date">
 
-                <input title="End Date" id="DateEnd" name="DateEnd" type="date" style="grid-column-start: 2;" class="smooth glowfocus formbox" placeholder="date">
+        <input title="End Date" id="DateEnd" name="DateEnd" type="date" style="grid-column-start: 2;" class="smooth glowfocus formbox" placeholder="date">
 
-                <div class="formbox">
-                    <label>Get by date</label>
-                    <input title="Start Date Checkbox" name="DateStartCheckbox" id="DateStartCheckbox" type="checkbox" >
-                </div>
+        <div class="formbox">
+            <label>Get by date</label>
+            <input title="Start Date Checkbox" name="DateStartCheckbox" id="DateStartCheckbox" type="checkbox" >
+        </div>
 
-                <div class="formbox">
-                    <label>Date Range</label>
-                    <input title="End Date Checkbox" name="DateEndCheckbox" id="DateEndCheckbox" type="checkbox" >
-                </div>
+        <div class="formbox">
+            <label>Date Range</label>
+            <input title="End Date Checkbox" name="DateEndCheckbox" id="DateEndCheckbox" type="checkbox" >
+        </div>
 
-                <select title="Report Dropdown" id="ReportDropdown" name="ReportDropdown" class="smooth glowfocus formbox" style="grid-column: 1;">
-                    <option value="" disabled="" selected="" hidden="">Report Type</option>
-                    <option value="name">Student's Names</option>
-                    <option value="student">Student's Tickets</option>
-                    <option value="user">User's Tickets</option>
-                </select>
+        <select title="Report Dropdown" id="ReportDropdown" name="ReportDropdown" class="smooth glowfocus formbox" style="grid-column: 1;">
+            <option value="" disabled="" selected="" hidden="">Report Type</option>
+            <option value="name">Student's Names</option>
+            <option value="student">Student's Tickets</option>
+            <option value="user">User's Tickets</option>
+        </select>
 
-                <input name="EntryBox" title="Entry Box" type="text" id="EntryBox"
-                   placeholder="Student ID" list="ReportStudentList" class="smooth glowfocus formbox"
-                   style="grid-column: 2;" >
-                <datalist id="ReportStudentList"></datalist>
+        <input name="EntryBox" title="Entry Box" type="text" id="EntryBox"
+           placeholder="Student ID" list="ReportStudentList" class="smooth glowfocus formbox"
+           style="grid-column: 2;" >
+        <datalist id="ReportStudentList"></datalist>
 
-            <input class="button smooth" type="button" title="Submit Button" id="ReportFetch"
-                   name="ReportFetch" value="Fetch" style="
-                        grid-column: span 2;
-                        width: fit-content;
-                        justify-self: center;
-            "
-            >
-        </form>
+    <input class="button smooth" type="button" title="Submit Button" id="ReportFetch"
+           name="ReportFetch" value="Fetch" style="
+                grid-column: span 2;
+                width: fit-content;
+                justify-self: center;
+    "
+    >
+</form>
 
-        <table id="ReportTable" class="ReportTable" hidden="true"></table>
-</body>
+<table id="ReportTable" class="ReportTable" hidden="true"></table>
 {% endblock %}
 
 {%  block script %}

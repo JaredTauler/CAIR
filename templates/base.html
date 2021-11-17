@@ -1,9 +1,8 @@
 <html lang="en">
     <head>
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <link rel="stylesheet" href="{{ url_for('static', filename='base/base.css') }}">
+{#        <link rel="stylesheet" href="{{ url_for('static', filename='common.css') }}">#}
         <link rel="shortcut icon" type="image/x-icon" href="static/favicon.ico">
-        <title id=""></title>
         <style>
             body {
                 margin: 0;
@@ -17,13 +16,14 @@
 
     <body>
         <div class="main">
-        {# A whole other HTML within this one.... crazy but works perfectly. Idk if this is good practice.#}
+        {# A whole other HTML within this one. Idk if this is good practice.#}
         {% include 'header.html' %}
         {% block content %}
         {% endblock %}
         </div>
     </body>
 
+{#    TODO avoid using jquery#}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossOrigin="anonymous"></script>
     <script>
         {{ static_include("base/base.js") | safe }}
