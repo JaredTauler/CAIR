@@ -1,6 +1,6 @@
 // Detect if mobile
 // TODO good way of doing this?
-const isMobile = window.matchMedia("only screen and (max-width: 760px)").matches;
+var isMobile = window.matchMedia("only screen and (max-width: 760px)").matches;
 
 // Cookie om nom nom
 {

@@ -53,3 +53,10 @@ function title(str) {
 
     }
 }
+
+
+if (isMobile) {console
+    console.log("BRUUHHHHHHH")
+    document.getElementById("Export").style.display = "none"
+}
+

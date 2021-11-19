@@ -133,7 +133,11 @@ def report():
 			return "", 400
 
 		rd = request.form.to_dict()
-		print(rd)
+
+		if rd["isMobile"] == "true":
+			isMobile = True
+		else:
+			isMobile = False
 
 		def ByDate(start, end, HadWhere):
 			# if were getting by date...
@@ -228,12 +232,20 @@ def report():
 
 		# Return a student's tickets.
 		elif rd.get("ReportDropdown") == "student":
-			col = ["fname", "lname", "type", "date"]
-			HadWhere = False
-			rq = \
-				"SELECT student.fname, student.lname, action.type, date FROM `ticket` " \
-				"INNER JOIN `student` on ticket.student_id = student.id " \
-				f"INNER JOIN `action` on ticket.action_id = action.id "
+			if isMobile: # Mobile data
+				col = ["fname", "lname", "type", "date"]
+				HadWhere = False
+				rq = \
+					"SELECT student.fname, student.lname, action.type, date FROM `ticket` " \
+					"INNER JOIN `student` on ticket.student_id = student.id " \
+					f"INNER JOIN `action` on ticket.action_id = action.id "
+			else: # 'Puter data
+				col = ["fname", "lname", "type", "date", "info", "comment"]
+				HadWhere = False
+				rq = \
+					"SELECT student.fname, student.lname, action.type, date, info, comment FROM `ticket` " \
+					"INNER JOIN `student` on ticket.student_id = student.id " \
+					f"INNER JOIN `action` on ticket.action_id = action.id "
 
 			entry = rd.get('EntryBox')
 			if entry is None or entry == "":

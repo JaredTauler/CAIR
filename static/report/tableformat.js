@@ -61,31 +61,43 @@ function TableFormat (choice, data) {
             ]
         });
     }
-    // FIXME finish!
+
     else if (choice === "student") {
+        let columns = [
+            {
+                title: "Student", field: "name", sorter: "string", width: 200,
+                formatter: function (cell) {
+                    let row = cell.getRow().getData();
+                    return title(row["fname"]) + " " + title(row["lname"]);
+                }, download: false
+            },
+
+            {title:"First Name", field:"fname", visible:false, download:true},
+            {title:"Last Name", field:"lname", visible:false, download:true},
+
+            {
+                title: "Date", field: "date", sorter: "string",
+                formatter: function (cell) {
+                    let row = cell.getRow().getData();
+                    let d = new Date(row["date"])
+                    let s = d.toLocaleDateString('en-US', {timeZone: 'UTC'})
+                    return s
+                },
+            },
+            {
+                title: "Type", field: "type", sorter: "string",
+            }
+        ]
+        if (isMobile === false) {
+            columns += [
+                {
+                    //FIXME finish this!
+                }
+            ]
+        }
         return new Tabulator("#ReportTable", {
             data: data,
-            columns: [
-                {
-                    title: "Student ", field: "student", sorter: "string", width: 200,
-                    formatter: function (cell) {
-                        let row = cell.getRow().getData();
-                        return title(row["fname"]) + " " + title(row["lname"]);
-                    },
-                },
-                {
-                    title: "Date", field: "date", sorter: "string",
-                    formatter: function (cell) {
-                        let row = cell.getRow().getData();
-                        let d = new Date(row["date"])
-                        let s = d.toLocaleDateString('en-US', {timeZone: 'UTC'})
-                        return s
-                    },
-                },
-                {
-                    title: "Type", field: "type", sorter: "string",
-                },
-            ]
+            columns: columns
         });
     }
 }

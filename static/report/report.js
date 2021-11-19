@@ -6,26 +6,23 @@ var ReportTableTabulator = new Tabulator("#ReportTable", {
 // On fetch button click,
 document.getElementById("ReportFetch").addEventListener("click", function(){
     let formData = new FormData(document.getElementById("ReportForm")) // Get form data
-    // Post to server
-    $.ajax({
-        type: "POST",
-        url: window.location.href,
-        dataType: "json",
-        processData: false,
-        contentType: false,
-        encode: true,
-        data: formData,
+    formData.append('isMobile', isMobile); // add mobile tag to formdata.
 
-    // On response data:
-    }).done(function (data) {
-        console.log("BRUH")
-        ReportTable.hidden = false
-        document.getElementById("ReportTable").hidden = false
-        ReportTableTabulator = TableFormat(
-            document.getElementById("ReportDropdown").value,
-            data
-        )
-    })
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        if (this.readyState == 4 && this.status == 200) {
+            ReportTable.hidden = false
+            document.getElementById("ReportTable").hidden = false
+            ReportTableTabulator = TableFormat(
+                document.getElementById("ReportDropdown").value,
+                xhttp.response
+            )
+        }
+    };
+
+    xhttp.open("POST", window.location.href, true);
+    xhttp.send(formData);
+
     return false;
 })
 
@@ -36,6 +33,7 @@ document.getElementById("ReportFetch").addEventListener("click", function(){
     StartCheckBox.addEventListener("change", function () {
         DateState(CheckBoxDecide({}))
     })
+
     let EndCheckBox = document.getElementById("DateEndCheckbox")
     EndCheckBox.addEventListener("change", function () {
         DateState(CheckBoxDecide({}))
@@ -115,6 +113,7 @@ document.getElementById("ReportFetch").addEventListener("click", function(){
     DropDownDecide()
 }
 
+// This relies on the table format including hidden tables!
 function ExcelExport () {
     ReportTableTabulator.download("csv", "data.csv", {sheetName:"MyData"});
 }
