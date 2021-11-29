@@ -27,3 +27,19 @@
     margin: 0;
     padding: .2rem;
 }
+.mainform div{
+    color: black;
+}
+.form {
+    background-color: aquamarine;
+    display: grid;
+    justify-content: center;
+    justify-items: center;
+    height: fit-content;
+    grid-template-rows: max-content max-content;
+
+}
+
+.form div {
+    width: 100%;
+}

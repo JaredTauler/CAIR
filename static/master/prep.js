@@ -4,7 +4,8 @@ let None = null
 let list = VALUES["list"]
 
 for (let key in list) {
-        row = list[key]
+    for (let i in list[key]) {
+        row = list[key][i]
         console.log(row)
         let opt = document.createElement('option');
 
@@ -16,4 +17,4 @@ for (let key in list) {
         let select = document.querySelector("#".concat(key));
         select.appendChild(opt);
     }
-
+}

@@ -122,7 +122,7 @@ def master():
 		data["list"] = {}
 		col = ["id", "fullname"]
 		rq = "SELECT id, fullname FROM `school`"
-		query = database.execute(rq, Columns=col)
+		query = database.execute(rq, True, Columns=col)
 		data["list"]["school"] = query
 		return render_template("master.html", values=data)
 
