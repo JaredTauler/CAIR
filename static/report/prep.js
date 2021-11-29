@@ -2,11 +2,6 @@
 
 HeaderTitle("Reports")
 
-// Populate Lists
-function title(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-}
-
 // Populate student dropdown
 {
     let None = null
@@ -56,7 +51,6 @@ function title(str) {
 
 
 if (isMobile) {console
-    console.log("BRUUHHHHHHH")
     document.getElementById("Export").style.display = "none"
 }
 

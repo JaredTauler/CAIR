@@ -26,6 +26,7 @@ with open("config.yaml", "r") as f:
 DBstr = cfg["DBstr"]
 DEBUG = cfg["DEBUG"]
 
+# fixme Doesnt deserve to be an object, is just being used as another namespace.
 class Database():
 	def __init__(self, engine):
 		self.engine = engine
@@ -89,6 +90,18 @@ def guide():
 			return redirect(url_for("home"))
 
 
+# Flask's "jsonify" serializes datetime objects into a stupid looking string. Using JSON library, I can
+# tell the serializer what to do when there's a datetime object, in this case it returns as string in
+# ISO 8601 format.
+
+def json_serial(obj):
+	if isinstance(obj, (datetime, date)):
+		print(obj.isoformat())
+
+		return obj.isoformat()
+	raise TypeError("Type %s not serializable" % type(obj))
+
+
 class Ignore400(Exception): pass # TODO add debug stuff?
 
 
@@ -102,6 +115,51 @@ def static_include(filename):
 
 
 ### Routes ###
+@app.route('/master', methods = ["GET", "POST"])
+def master():
+	if request.method == "GET":
+		data = {}
+		data["list"] = {}
+		col = ["id", "fullname"]
+		rq = "SELECT id, fullname FROM `school`"
+		query = database.execute(rq, Columns=col)
+		data["list"]["school"] = query
+		return render_template("master.html", values=data)
+
+	elif request.method == "POST":
+		rd = request.form.to_dict()
+
+		query = {}
+
+		col = ["fname", "lname", "id", "school"]
+		id = rd["EntryBox"]
+		rq = \
+			" SELECT " \
+			" fname, lname, id, school" \
+			" FROM `student` " \
+			f" WHERE id = '{id}' "
+
+		query["man"] = database.execute(rq, True, Columns=col)
+
+		col = ["date", "action", "info", "user_id", "user_fname", "user_lname"]
+		rq = \
+			" SELECT " \
+			" date, action.type, info, " \
+			" user.id, user.fname, user.lname " \
+			\
+			" FROM `ticket` " \
+			\
+			" INNER JOIN `user` on ticket.user_id = user.id" \
+			" INNER JOIN `action` on ticket.action_id = action.id " \
+			\
+		   f" WHERE student_id = '{id}' "
+
+		query["tabul"] = database.execute(rq, True, Columns=col)
+
+		return json.dumps(query, default=json_serial), 200
+
+
+
 # YUTA do homepage
 @app.route('/home', methods = ["GET", "POST"])
 def home():
@@ -168,16 +226,7 @@ def report():
 			else:
 				return ""
 
-# Flask's "jsonify" serializes datetime objects into a stupid looking string. Using JSON library, I can
-# tell the serializer what to do when there's a datetime object, in this case it returns as string in
-# ISO 8601 format.
 
-		def json_serial(obj):
-			if isinstance(obj, (datetime, date)):
-				print(obj.isoformat())
-
-				return obj.isoformat()
-			raise TypeError("Type %s not serializable" % type(obj))
 
 		def IsDate(item):
 			if type(item) is list:

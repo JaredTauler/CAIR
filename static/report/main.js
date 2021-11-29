@@ -1,5 +1,5 @@
-var ReportTable = document.getElementById("ReportTable")
-var ReportTableTabulator = new Tabulator("#ReportTable", {
+ReportTable = document.getElementById("ReportTable")
+ReportTableTabulator = new Tabulator("#ReportTable", {
     autoColumns:true,
 });
 

@@ -88,12 +88,12 @@ function TableFormat (choice, data) {
                 title: "Type", field: "type", sorter: "string",
             }
         ]
+        // Append the desktop only columns
         if (isMobile === false) {
-            columns += [
-                {
-                    //FIXME finish this!
-                }
-            ]
+            columns.push(
+                    {title:"Additional Info", field:"info", visible:true, download:true},
+                    {title:"Comment", field:"comment", visible:true, download:true},
+            )
         }
         return new Tabulator("#ReportTable", {
             data: data,
