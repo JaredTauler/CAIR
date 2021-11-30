@@ -3,6 +3,7 @@
 import json
 import os
 import re
+import sys
 
 from datetime import date, datetime
 import yaml
@@ -26,18 +27,18 @@ with open("config.yaml", "r") as f:
 DBstr = cfg["DBstr"]
 DEBUG = cfg["DEBUG"]
 
-# fixme Doesnt deserve to be an object, is just being used as another namespace.
+# todo should this be a func rather than a object?
 class Database():
 	def __init__(self, engine):
 		self.engine = engine
 
-	def execute(self, query, ForJSON=False, NoResult=False, Columns=None):
+	# FIXME Only here as to not break other stuff. Dont use.
+	def execute(self, query, ForJSON=False, NoResult=False, Columns=None, FirstID=False):
 		with self.engine.connect() as connection:
 			result = connection.execute(query).cursor
 			if NoResult:
 				return True
 			fetch = result.fetchall()
-
 		if not ForJSON:
 			return fetch
 
@@ -51,6 +52,27 @@ class Database():
 			json_data = []
 			for result in fetch:
 				json_data.append(dict(zip(row_headers, result)))
+		return json_data
+
+	# TODO possible to do this without a loop?
+	def NewExecute(self, query, auto_index=False):
+		with self.engine.connect() as connection:
+			result = connection.execute(query).cursor
+			fetch = result.fetchall()
+
+		json_data = {}
+
+		def func(i, row):
+			json_data[i] = row
+
+		if auto_index:
+			for i, row in enumerate(fetch):
+				func(i, row)
+		else:
+			for row in fetch:
+				# "row[1:]" is targeting between 2nd and last item.
+				func(row[0], row[1:])
+
 		return json_data
 
 
@@ -96,7 +118,7 @@ def guide():
 
 def json_serial(obj):
 	if isinstance(obj, (datetime, date)):
-		print(obj.isoformat())
+		# print(obj.isoformat())
 
 		return obj.isoformat()
 	raise TypeError("Type %s not serializable" % type(obj))
@@ -118,46 +140,68 @@ def static_include(filename):
 @app.route('/master', methods = ["GET", "POST"])
 def master():
 	if request.method == "GET":
+
+		# Return schools
 		data = {}
 		data["list"] = {}
 		col = ["id", "fullname"]
 		rq = "SELECT id, fullname FROM `school`"
 		query = database.execute(rq, True, Columns=col)
 		data["list"]["school"] = query
+
 		return render_template("master.html", values=data)
+
 
 	elif request.method == "POST":
 		rd = request.form.to_dict()
+		# EDITORS BEWARE:
+		# The order in which columns are in queries is crucial to how the client loads the data.
 
-		query = {}
+		# Do the joining on the client. No reason to have a giant query with somebodies first and last name 100 times,
+		# simply have their ID and pass an array with their info to client. Let client worry about how the data looks.
 
-		col = ["fname", "lname", "id", "school"]
+		query = {} # data to give back to client.
+
+		# TODO figure out how to combine DB queries.
+		# Get data about the particular student
 		id = rd["EntryBox"]
 		rq = \
 			" SELECT " \
-			" fname, lname, id, school" \
+			" id, fname, lname, school, active" \
 			" FROM `student` " \
 			f" WHERE id = '{id}' "
+		query["man"] = database.NewExecute(rq, auto_index=True)
 
-		query["man"] = database.execute(rq, True, Columns=col)
 
-		col = ["date", "action", "info", "user_id", "user_fname", "user_lname"]
+		table = {} # easier to read.
+
+		# Get users related to query.
+		rq = \
+			" SELECT DISTINCT user_id, user.fname, user.lname FROM `ticket` " \
+			" INNER JOIN `user` on ticket.user_id = user.id " \
+		   f" WHERE student_id = '{id}' "
+		table["user"] = database.NewExecute(rq)
+
+		# Get student's tickets.
 		rq = \
 			" SELECT " \
-			" date, action.type, info, " \
-			" user.id, user.fname, user.lname " \
-			\
+			" id, date, action_id, info, user_id " \
 			" FROM `ticket` " \
-			\
-			" INNER JOIN `user` on ticket.user_id = user.id" \
-			" INNER JOIN `action` on ticket.action_id = action.id " \
-			\
 		   f" WHERE student_id = '{id}' "
+		table["ticket"] = database.NewExecute(rq)
 
-		query["tabul"] = database.execute(rq, True, Columns=col)
+		# Get actions related to the query.
+		rq = \
+			" SELECT DISTINCT action_id, action.type FROM `ticket` " \
+			" INNER JOIN `action` on ticket.action_id = action.id " \
+			f" WHERE student_id = '{id}' "
+		table["action"] = database.NewExecute(rq)
 
+		query["table"] = table
+
+		# Return all this crap to client.
+		# FIXME return ISO8601 from DB rather than a date object, i feel this would be more efficient.
 		return json.dumps(query, default=json_serial), 200
-
 
 
 # YUTA do homepage

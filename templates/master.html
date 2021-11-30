@@ -13,55 +13,66 @@
 {% endblock %}
 
 {% block content %}
-<form id="ReportForm" class="FormContainer">
-    <label>Student's name or ID:</label>
-    <input name="EntryBox" title="Entry Box" type="text" id="EntryBox"
-       placeholder="Student ID" list="ReportStudentList" class="smooth glowfocus formbox"
-       style="grid-column: 1;" >
-    <datalist id="ReportStudentList"></datalist>
 
-    <input class="button smooth" type="button" title="Submit Button" id="ReportFetch"
-           name="ReportFetch" value="Search" style="
-                grid-column: 2;
-                width: fit-content;
-                justify-self: center;
-    "
-    >
 
-</form>
-<form id = "mainform" class="form">
-    <div>
-        <label>Last Name:</label>
-        <input name="lname" type="text">
+<div id = "mainform" class="form">
+    <form id="ReportForm" class="FormContainer">
+        <label>Student's name or ID:</label>
+        <input name="EntryBox" title="Entry Box" type="text" id="EntryBox"
+           placeholder="Student ID" list="ReportStudentList" class="smooth glowfocus formbox"
+           style="grid-column: 1;" >
+        <datalist id="ReportStudentList"></datalist>
 
-        <label>First Name:</label>
-        <input name="fname" type="text">
-    </div>
-    <div>
-        <select
-            name = "school"
-            title="School"
-            id="school"
-            class="smooth glowfocus formbox"
+        <input class="button smooth" type="button" title="Submit Button" id="ReportFetch"
+               name="ReportFetch" value="Search" style="
+                    grid-column: 2;
+                    width: fit-content;
+                    justify-self: center;
+        "
         >
-            <option value="" disabled selected hidden>School</option>
-        </select>
 
-        <label>Active</label>
-        <input name="active" type="checkbox">
-    </div>
-    <div>
-        <a>Total Interactions:</a>
-        <a>0</a>
-        <a>Date of Last Interaction</a>
-        <a>0</a>
-    </div>
-</form>
+    </form>
+
+    <form id="changeform">
+        <div>
+            <label>Last Name:
+                <input name="lname" id="lname" type="text" disabled>
+            </label>
+
+            <label>First Name:
+                <input name="fname" id="fname" type="text" disabled>
+            </label>
+        </div>
+        <div>
+            <select
+                name = "school"
+                title="School"
+                id="school"
+                class="smooth glowfocus formbox"
+                disabled
+            >
+                <option value="" disabled selected hidden>School</option>
+            </select>
+
+            <label>Active
+                <input name="active" id="active" type="checkbox" disabled>
+            </label>
+        </div>
+        <div>
+            <a>Total Interactions:</a>
+            <a id="total">0</a>
+            <a>Date of Last Interaction</a>
+            <a id="last">0</a>
+        </div>
+    </form>
+</div>
+
 <table id="ReportTable" class="ReportTable" hidden="true"></table>
 {% endblock %}
 
 {%  block script %}
 <script type="text/javascript">
+    let None = null // this is for loading values
     const VALUES = {{ values|safe }} // IMPORTANT, this passes values passed to the jinja template to the JS file.
         {{ static_include("master/prep.js") | safe }}
         {{ static_include("master/main.js") | safe }}

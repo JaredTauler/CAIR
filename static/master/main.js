@@ -1,5 +1,3 @@
-
-
 let ReportTable = document.getElementById("ReportTable");
 let ReportTableTabulator = new Tabulator("#ReportTable", );
 
@@ -12,9 +10,21 @@ document.getElementById("ReportFetch").addEventListener("click", function(){
     xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
             response = JSON.parse(xhttp.response)
-            ReportTable.hidden = false
-            document.getElementById("ReportTable").hidden = false
-            ReportTableTabulator = TableFormat(response["tabul"])
+
+            // Table
+            {
+                ReportTable.hidden = false
+                document.getElementById("ReportTable").hidden = false
+                ReportTableTabulator = TableFormat(response["table"])
+            }
+
+            let man = response["man"][0] // auto indexed
+            ChangeForm.disable(false)
+            ChangeForm["fname"].value = man[0]
+            ChangeForm["lname"].value = man[1]
+            ChangeForm["school"].selected = man[2]
+            console.log(ChangeForm["school"].value) //FIXME continue
+
         }
     };
 

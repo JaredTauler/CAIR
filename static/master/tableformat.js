@@ -1,29 +1,64 @@
 function TableFormat (data) {
+    let ticket = Object.entries(data["ticket"])
     return new Tabulator("#ReportTable", {
-        data: data,
+        data: ticket,
         columns: [
+            // ID
             {
-                title: "Date", field: "date", sorter: "string",
-                formatter: function (cell) {
-                    let row = cell.getRow().getData();
-                    let d = new Date(row["date"])
-                    let s = d.toLocaleDateString('en-US', {timeZone: 'UTC'})
-                    return s
-                }, download:false
+                title: "ID", field: "0"
             },
-            {title: "Interaction", field: "action", sorter: "string"},
-            {title: "Additional Info", field: "info", sorter: "string"},
+            // DATE
             {
-                title: "Worker", field: "name", sorter: "string", width: 200,
-                formatter: function (cell) {
-                    let row = cell.getRow().getData();
-                    return title(row["user_fname"]) + " " + title(row["user_lname"]);
-                }, download: false
+                title:
+                    "Date", field: "1", sorter: "string",
+                    formatter: function (cell) {
+                        let field = cell.getValue()[0]
+                        let d = new Date(field)
+                        return d.toLocaleDateString('en-US', {timeZone: 'UTC'})
+                    }
             },
-
-            {title: "First Name", field: "user_fname", visible: false, download: true},
-            {title: "Last Name", field: "user_lname", visible: false, download: true},
-            {title: "Worker ID", field: "user_id", visible: false, download: true},
+            // ACTION
+            {
+                title: "Interaction", field: "1", sorter: "string",
+                formatter: function (cell) {
+                    let field = cell.getValue()[1]
+                    return data["action"][field][0]
+                }
+            },
+            // INFO
+            {
+                title: "Additional Info", field: "1", sorter: "string",
+                formatter: function (cell) {
+                    let field = cell.getValue()[2]
+                    // Info is a string, unhashable.
+                    return field
+                }
+            },
+            // WORKER FULL NAME (for display)
+            {
+                title: "Worker", field: "1", sorter: "string", width: 200, download: false,
+                formatter: function (cell) {
+                    let field = cell.getValue()[3]
+                    var fname = data["user"][field][0]
+                    var lname = data["user"][field][1]
+                    return title(fname) + " " + title(lname)
+                }
+            },
+            // WORKER (for export)
+            {
+                title: "First Name", field: "1", visible: false, download: true,
+                formatter: function (cell) {
+                    let field = cell.getValue()[3]
+                    return data["user"][field][0]
+                }
+            },
+            {
+                title: "Last Name", field: "1", visible: false, download: true,
+                formatter: function (cell) {
+                    let field = cell.getValue()[3]
+                    return data["user"][field][1]
+                }
+            },
         ],
 
     });
