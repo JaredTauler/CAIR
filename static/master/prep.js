@@ -1,9 +1,14 @@
 HeaderTitle("Master")
 
+let ReportTable = document.getElementById("ReportTable");
+let ReportTableTabulator = new Tabulator("#ReportTable", );
+let TableDiv = document.getElementById("tablediv")
+let EntryBox = document.getElementById("EntryBox")
+
 // Form that manipulates student data.
 const ChangeForm = {}
 {
-    let x = ["fname", "lname", "school", "active", "last"]
+    let x = ["fname", "lname", "school", "active", "last", "id"]
 
     let a = document.getElementById("changeform")
 
@@ -11,16 +16,33 @@ const ChangeForm = {}
         let y = x[i]
         ChangeForm[y] = a.querySelector("#".concat(y))
 
+        ChangeForm.disabled = true
         // My first JS method. (hehe)
         // Disables all the elements.
         ChangeForm.disable = function (bool) {
-            for (let i in ChangeForm) {
-                ChangeForm[i].disabled = bool
+            if (this.disabled === true) {
+                for (let i in ChangeForm) {
+                    ChangeForm[i].disabled = bool
+                    ChangeForm[i].value = null
+                }
             }
         }
     }
 }
-ChangeForm.disabled = true // in case cached page
+// document.getElementById("last").hidden = true
+const Statistic = {}
+Statistic["last"] = document.getElementById("lastval")
+Statistic["total"] = document.getElementById("totalval")
+Statistic.hidden = function (bool) {
+    let x = []
+    x["total"] = document.getElementById("total")
+    x["last"] = document.getElementById("last")
+
+    for (let i in x) {
+        x[i].hidden = bool
+    }
+}
+
 
 // setup school dropdown.
 {
@@ -41,3 +63,11 @@ ChangeForm.disabled = true // in case cached page
     }
 }
 
+function Clear() {
+    console.log("Clearing")
+    Statistic.hidden(true)
+    EntryBox.textContent = null
+    ChangeForm.disable(true)
+    TableDiv.hidden = true
+}
+Clear()

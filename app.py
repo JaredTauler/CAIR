@@ -58,6 +58,8 @@ class Database():
 	def NewExecute(self, query, auto_index=False):
 		with self.engine.connect() as connection:
 			result = connection.execute(query).cursor
+			if result is None:
+				return True # if no result (e.g. INSERT)
 			fetch = result.fetchall()
 
 		json_data = {}
@@ -154,54 +156,86 @@ def master():
 
 	elif request.method == "POST":
 		rd = request.form.to_dict()
-		# EDITORS BEWARE:
-		# The order in which columns are in queries is crucial to how the client loads the data.
 
-		# Do the joining on the client. No reason to have a giant query with somebodies first and last name 100 times,
-		# simply have their ID and pass an array with their info to client. Let client worry about how the data looks.
+		if rd["intent"] == "query":
+			# EDITORS BEWARE:
+			# The order in which columns are in queries is crucial to how the client loads the data.
 
-		query = {} # data to give back to client.
+			# Do the joining on the client. No reason to have a giant query with somebodies first and last name 100 times,
+			# simply have their ID and pass an array with their info to client. Let client worry about how the data looks.
 
-		# TODO figure out how to combine DB queries.
-		# Get data about the particular student
-		id = rd["EntryBox"]
-		rq = \
-			" SELECT " \
-			" id, fname, lname, school, active" \
-			" FROM `student` " \
-			f" WHERE id = '{id}' "
-		query["man"] = database.NewExecute(rq, auto_index=True)
+			query = {} # data to give back to client.
+
+			# TODO figure out how to combine DB queries.
+			# Get data about the particular student
+			id = rd["EntryBox"]
+			rq = \
+				" SELECT " \
+				" id, fname, lname, school, active" \
+				" FROM `student` " \
+				f" WHERE id = '{id}' "
+			val = database.NewExecute(rq, auto_index=True)
+			if len(val) == 0:
+				pass
+			query["man"] = val
+
+			table = {} # easier to read.
+
+			# Get users related to query.
+			rq = \
+				" SELECT DISTINCT user_id, user.fname, user.lname FROM `ticket` " \
+				" INNER JOIN `user` on ticket.user_id = user.id " \
+			   f" WHERE student_id = '{id}' "
+			table["user"] = database.NewExecute(rq)
+
+			# Get student's tickets.
+			rq = \
+				" SELECT " \
+				" id, date, action_id, info, user_id " \
+				" FROM `ticket` " \
+			   f" WHERE student_id = '{id}' "
+			table["ticket"] = database.NewExecute(rq)
+
+			# Get actions related to the query.
+			rq = \
+				" SELECT DISTINCT action_id, action.type FROM `ticket` " \
+				" INNER JOIN `action` on ticket.action_id = action.id " \
+				f" WHERE student_id = '{id}' "
+			table["action"] = database.NewExecute(rq)
+
+			query["table"] = table
+
+			# Return all this crap to client.
+			# FIXME return ISO8601 from DB rather than a date object, i feel this would be more efficient.
+			return json.dumps(query, default=json_serial), 200
 
 
-		table = {} # easier to read.
+		elif rd["intent"] == "save":
+			if rd.get("active") == "on": rd["active"] = 1
+			else: rd["active"] = 0
 
-		# Get users related to query.
-		rq = \
-			" SELECT DISTINCT user_id, user.fname, user.lname FROM `ticket` " \
-			" INNER JOIN `user` on ticket.user_id = user.id " \
-		   f" WHERE student_id = '{id}' "
-		table["user"] = database.NewExecute(rq)
+			str = ""
+			options = [
+				("fname", 0),
+				("lname", 0),
+				("id", 1),
+				("school", 1),
+				("active", 1)
+			]
 
-		# Get student's tickets.
-		rq = \
-			" SELECT " \
-			" id, date, action_id, info, user_id " \
-			" FROM `ticket` " \
-		   f" WHERE student_id = '{id}' "
-		table["ticket"] = database.NewExecute(rq)
+			for i, j in enumerate(options):
+				if j[1] == 0: str += (f" `{j[0]}` = '{rd[j[0]]}',") # str
+				elif j[1] == 1: str += (f" `{j[0]}` = {rd[j[0]]},") # int
+				if i == len(options) - 1: str = str[:-1] # Remove last char , if the last object in loop
+				#FIXME some dont work!
+			rq = (
+				 " UPDATE `student` SET "
+				 f"{str}"
+				f" WHERE ID = '{rd['id']}'"
+			)
+			val = database.NewExecute(rq, auto_index=True)
 
-		# Get actions related to the query.
-		rq = \
-			" SELECT DISTINCT action_id, action.type FROM `ticket` " \
-			" INNER JOIN `action` on ticket.action_id = action.id " \
-			f" WHERE student_id = '{id}' "
-		table["action"] = database.NewExecute(rq)
-
-		query["table"] = table
-
-		# Return all this crap to client.
-		# FIXME return ISO8601 from DB rather than a date object, i feel this would be more efficient.
-		return json.dumps(query, default=json_serial), 200
+			return "", 200
 
 
 # YUTA do homepage

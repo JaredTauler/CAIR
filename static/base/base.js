@@ -34,6 +34,11 @@ function HeaderTitle (s) {
     } catch (e) {console.log("Couldnt set header title!")}
 }
 
+function localedate (str) {
+    let d = new Date(str)
+    return d.toLocaleDateString('en-US', {timeZone: 'UTC'})
+}
+
 // DEBUG
 function FormDataPrint (v) {
     for (var pair of v.entries()) {

@@ -3,10 +3,6 @@ function TableFormat (data) {
     return new Tabulator("#ReportTable", {
         data: ticket,
         columns: [
-            // ID
-            {
-                title: "ID", field: "0"
-            },
             // DATE
             {
                 title:
@@ -14,7 +10,7 @@ function TableFormat (data) {
                     formatter: function (cell) {
                         let field = cell.getValue()[0]
                         let d = new Date(field)
-                        return d.toLocaleDateString('en-US', {timeZone: 'UTC'})
+                        return localedate(d)
                     }
             },
             // ACTION
