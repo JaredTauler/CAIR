@@ -16,7 +16,7 @@
 {% endblock %}
 
 {% block content %}
-<form id="ReportForm" class="FormContainer">
+<form id="ReportForm" class="FormContainer" autocomplete="off">
         <input name="DateStart" id="DateStart" title="Start Date" type="date" style="grid-column-start: 1;" class="smooth glowfocus formbox" placeholder="date">
 
         <input title="End Date" id="DateEnd" name="DateEnd" type="date" style="grid-column-start: 2;" class="smooth glowfocus formbox" placeholder="date">
@@ -40,8 +40,13 @@
 
         <input name="EntryBox" title="Entry Box" type="text" id="EntryBox"
            placeholder="Student ID" list="ReportStudentList" class="smooth glowfocus formbox"
-           style="grid-column: 2;" >
+           style="grid-column: 2;"
+           autocomplete="ygiuyguygoyug"
+{# gibberish seems to be the only way to get this to work?
+nope, off, false, no, new-password: do not work#}
+        >
         <datalist id="ReportStudentList"></datalist>
+        <datalist id="ReportUserList"></datalist>
 
     <input class="button smooth" type="button" title="Submit Button" id="ReportFetch"
            name="ReportFetch" value="Fetch" style="

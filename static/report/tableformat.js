@@ -1,4 +1,5 @@
 function TableFormat (choice, data) {
+    console.log(data)
     if (choice === "name") {
         return new Tabulator("#ReportTable", {
             data: data,

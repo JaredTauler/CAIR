@@ -5,7 +5,7 @@ HeaderTitle("Reports")
 // Populate student dropdown
 {
     let None = null
-    var list = VALUES["list"]
+    var list = VALUES
 
     for (let key in list) {
         for (let i in list[key]) {
@@ -13,13 +13,13 @@ HeaderTitle("Reports")
             console.log(row)
             let opt = document.createElement('option');
 
-            // Decide how to handle data depending on what list is being drawn from. This seemed like the best
-            // way to do it.
-
-            if (key === "studentlist") {
-                opt.text = "".concat(title(row["fname"]), " ", title(row["lname"]));
-                opt.value = row["id"]
+            opt.text = "".concat(title(row[1]), " ", title(row[2]));
+            opt.value = row[0]
+            if (key === "student") {
                 document.getElementById("ReportStudentList").appendChild(opt)
+            }
+            else if (key === "user") {
+                document.getElementById("ReportUserList").appendChild(opt)
             }
         }
     }

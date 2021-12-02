@@ -62,11 +62,11 @@ function Save () {
     console.log(formData)
     formData.append('isMobile', isMobile); // add mobile tag to formdata.
     formData.append("intent", "save")
-
+    formData.append("EntryBox", document.getElementById("EntryBox").value)
     let xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
-            console.log(response)
+            // console.log(response)
         }
     };
 
