@@ -22,6 +22,9 @@ def json_serial(obj):
 def master():
 	if request.method == "GET":
 		data = {}
+		q = f"SELECT id, fname, lname FROM `student` WHERE `active` = 1"
+		r = database.Execute(q, True)
+		data["student"] = r
 		data["school"] = function.Schools() # Return schools
 		return render_template("master.html", values=json.dumps(data))
 
@@ -44,10 +47,9 @@ def master():
 				" FROM `student` " 
 				f" WHERE id = '{id}' "
 			)
-			val = database.Execute(rq, auto_index=True)
-			if len(val) == 0:
-				pass # TODO no student
-			query["man"] = val
+			query["man"] = database.Execute(rq, auto_index=True)
+			if len(query["man"]) == 0:
+				return "", 400
 
 			table = {} # easier to read.
 
@@ -59,33 +61,47 @@ def master():
 			   f" WHERE student_id = '{id}' "
 			)
 			table["ticket"] = database.Execute(rq)
+			if len(table["ticket"]) == 0: # No tickets
+				print(query)
+				return json.dumps(query, default=json_serial), 200
 
-			# Dirty. Do not try at home. FIXME finish
-			seen = []
-			user = "("
+			# Determine which ID's need to be looked up in the DB.
+			# Shameful to do a loop on this but I dont know SQL well enough to write a slick query that could do this
+			# the proper way.
+			# I feel like this is better than bothering the database into doing a join on the previous query to get
+			# data from different tables.
+			seen = {}
+			seen["action_id"] = []
+			seen["user_id"] = []
+
+			str = {}
+			str["action_id"] = ""
+			str["user_id"] = ""
+
 			iter = table["ticket"].values()
 			for i, row in enumerate(iter):
-				if row[3] not in seen:
-					seen.append(row[3])
-					user += f" {row[3]},"
-				if i == len(iter) -1:
-					user = user[:-1]
+				if row[3] not in seen["user_id"]:
+					seen["user_id"].append(row[3])
+					str["user_id"] += f" {row[3]},"
 
-			user += ")"
+				if row[1] not in seen["action_id"]:
+					seen["action_id"].append(row[1])
+					str["action_id"] += f" {row[1]},"
 
-			print(user)
+			for i in str:
+				str[i] = str[i][:-1] # del last comma
+
 			# Get users related to query.
 			rq = (
 				" SELECT DISTINCT id, fname, lname FROM `user` " 			
-			   f" WHERE id IN ({user}) "
+			   f" WHERE id IN ({str['user_id']}) "
 			)
 			table["user"] = database.Execute(rq)
-			print(table["user"])
+
 			# Get actions related to the query.
 			rq = (
-				" SELECT DISTINCT action_id, action.type FROM `ticket` " 
-				" INNER JOIN `action` on ticket.action_id = action.id " 
-				f" WHERE student_id = '{id}' "
+				" SELECT DISTINCT id, type FROM `action` " 			
+			   f" WHERE id IN ({str['action_id']}) "
 			)
 			table["action"] = database.Execute(rq)
 
@@ -94,10 +110,12 @@ def master():
 			# Return all this crap to client.
 			return json.dumps(query, default=json_serial), 200
 
+
 		elif rd["intent"] == "save":
 			if rd.get("active") == "on": rd["active"] = 1
 			else: rd["active"] = 0
 
+			# with this setup, not every column has to be updated. TODO add on client
 			str = ""
 			options = [
 				("fname", 0),
@@ -112,6 +130,7 @@ def master():
 				if j[1] == 0: str += (f" `{j[0]}` = '{rd[j[0]]}',") # str
 				elif j[1] == 1: str += (f" `{j[0]}` = {rd[j[0]]},") # int
 				if i == len(options) - 1: str = str[:-1] # Remove last char , if the last object in loop
+
 			rq = (
 				 " UPDATE `student` SET "
 				 f"{str}"

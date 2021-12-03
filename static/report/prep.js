@@ -6,7 +6,7 @@ HeaderTitle("Reports")
 {
     let None = null
     var list = VALUES
-
+    console.log(VALUES)
     for (let key in list) {
         for (let i in list[key]) {
             row = list[key][i]

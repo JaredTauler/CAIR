@@ -10,5 +10,5 @@ def Schools():
 	q = (
 		"SELECT id, fullname FROM `school`"
 	)
-	r = Execute(q)
+	r = Execute(q, True)
 	return r

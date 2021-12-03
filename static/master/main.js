@@ -11,10 +11,9 @@ function Fetch(){
         if (this.readyState == 4 && this.status == 200) {
             response = JSON.parse(xhttp.response)
 
-            let RowCount = Object.keys(response["table"]["ticket"]).length
-
             // Table
-            if (RowCount !== 0) {
+            if (response["table"] !== undefined) {
+                let RowCount = Object.keys(response["table"]["ticket"]).length
                 Statistic.hidden(false)
                 Statistic["total"].textContent = RowCount
                 document.getElementById("ReportTable").hidden = false

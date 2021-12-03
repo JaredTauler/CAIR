@@ -46,23 +46,34 @@ Statistic.hidden = function (bool) {
 
 // setup school dropdown.
 {
-    let list = VALUES["list"]
-    let dropdown = ChangeForm["school"]
+    let None = null
+    let list = VALUES
+
     for (let key in list) {
         for (let i in list[key]) {
-            row = list[key][i];
+            row = list[key][i]
+
+            // var option = document.createElement("option");
+            // option.text = "Text";
+            // option.value = "myvalue";
+            // var select = document.getElementById("id-to-my-select-box");
+            // select.appendChild(option);
             let opt = document.createElement('option');
 
-            if (key === "school") {
-                opt.text = row["fullname"];
-                opt.value = row["id"];
+            if (key === "student") {
+                opt.text = "".concat(title(row[1]), " ", title(row[2]));
+                opt.value = row[0]
+                document.getElementById("ReportStudentList").appendChild(opt)
             }
+            else if (key === "school") {
 
-            dropdown.appendChild(opt);
+                opt.value = row[0];
+                opt.text = row[1];
+                ChangeForm["school"].appendChild(opt);
+            }
         }
     }
 }
-
 function Clear() {
     console.log("Clearing")
     Statistic.hidden(true)
