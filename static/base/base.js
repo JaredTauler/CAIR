@@ -23,7 +23,9 @@ var isMobile = window.matchMedia("only screen and (max-width: 760px)").matches;
 }
 
 function title(str) {
-    return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+    try {
+        return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+    } catch (e) {return str} // Ignore error
 }
 
 // Set the pages title. This expects the header html to be included

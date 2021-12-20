@@ -2,7 +2,6 @@
 
 import os
 
-from datetime import date, datetime
 import yaml
 
 # flask
@@ -22,8 +21,6 @@ DEBUG = cfg["DEBUG"]
 
 # Prepare app
 app = Flask(__name__)
-
-
 
 app.secret_key = os.urandom(16)
 db = SQLAlchemy(app)

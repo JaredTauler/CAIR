@@ -72,6 +72,7 @@ nope, off, false, no, new-password: do not work#}
 {%  block script %}
 <script type="text/javascript">
     const VALUES = {{ values|safe }} // IMPORTANT, this passes values passed to the jinja template to the JS file.
+    {{ static_include("tabulator_columns.js") | safe }}
     {{ static_include("report/prep.js") | safe }}
     {{ static_include("report/tableformat.js") | safe }}
     {{ static_include("report/main.js") | safe }}

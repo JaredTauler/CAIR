@@ -10,13 +10,21 @@ document.getElementById("ReportFetch").addEventListener("click", function(){
 
     var xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-            ReportTable.hidden = false
-            document.getElementById("ReportTable").hidden = false
-            ReportTableTabulator = TableFormat(
-                document.getElementById("ReportDropdown").value,
-                xhttp.response
-            )
+        if (this.readyState == 4) { // If ready
+            response = JSON.parse(xhttp.response)
+            if (this.status == 200) {
+                ReportTable.hidden = false
+                document.getElementById("ReportTable").hidden = false
+                if (response["table"]) {
+                    ReportTableTabulator = TableFormat(
+                        document.getElementById("ReportDropdown").value,
+                        response["table"]
+                    )
+                } else {
+                    console.log("no data")
+                    // TODO no data
+                }
+            }
         }
     };
 

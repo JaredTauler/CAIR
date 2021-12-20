@@ -3,7 +3,7 @@
 <head>
     <title>Student Master</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='common.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='master/a.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='student_master/a.css') }}">
 
     <link href="https://unpkg.com/tabulator-tables@5.0.7/dist/css/tabulator.min.css" rel="stylesheet">
     <script type="text/javascript" src="https://unpkg.com/tabulator-tables@5.0.7/dist/js/tabulator.min.js"></script>
@@ -17,13 +17,13 @@
 
 <div id = "mainform" class="form">
     <form id="FetchForm" class="FormContainer" onsubmit="return Fetch()">
-        <label>Student's name or ID:</label>
+        <label>Worker's name or ID:</label>
         <input name="EntryBox" title="Entry Box" type="text" id="EntryBox"
-           placeholder="Student ID" list="ReportStudentList" class="smooth glowfocus formbox"
+           placeholder="Worker ID" list="UserList" class="smooth glowfocus formbox"
            style="grid-column: 1;"
            autocomplete="ygiuyguygoyug"
         >
-        <datalist id="ReportStudentList"></datalist>
+        <datalist id="UserList"></datalist>
 
         <input class="button smooth" type="submit" title="Submit Button" id="ReportFetch"
                name="ReportFetch" value="Search" style="
@@ -36,7 +36,7 @@
 
     </form>
 
-    <form id="changeform" class="FormContainer" onsubmit="return Save()">
+    <form id="changeform" class="FormContainer" onsubmit="return save()">
         <label>Last Name:
             <input name="lname" id="lname" type="text" class="smooth glowfocus formbox">
         </label>
@@ -45,26 +45,20 @@
             <input name="fname" id="fname" type="text" class="smooth glowfocus formbox">
         </label>
 
-        <label>Student ID:
+        <label>Worker ID:
             <input name="id" id="id" type="text" class="smooth glowfocus formbox">
         </label>
 
-        <label>School:
-            <select
-                name = "school"
-                title="School"
-                id="school"
-                class="smooth glowfocus formbox"
-            >
-                <option value="" disabled selected hidden></option>
-            </select>
+        <label> Username:
+            <input name="username" id="username" type="text" class="smooth glowfocus formbox">
         </label>
 
-        <label>Active
-            <input name="active" id="active" type="checkbox" value="0">
+        <label>Email:
+            <input name="email" id="email" type="text" class="smooth glowfocus formbox">
         </label>
+
         <input class="button smooth" type="submit" title="Save Button"
-           name="ReportFetch" value="Save" style="
+           name="Save" value="Save" style="
                 grid-column: 2;
                 width: fit-content;
                 justify-self: center;
@@ -91,8 +85,9 @@
 <script type="text/javascript">
     let None = null // this is for loading values
     const VALUES = {{ values|safe }} // IMPORTANT, this passes values passed to the jinja template to the JS file.
-        {{ static_include("master/prep.js") | safe }}
-        {{ static_include("master/main.js") | safe }}
-        {{ static_include("master/tableformat.js") | safe }}
+    {{ static_include("tabulator_columns.js") | safe }}
+    {{ static_include("worker_master/prep.js") | safe }}
+    {{ static_include("worker_master/main.js") | safe }}
+    {{ static_include("worker_master/tableformat.js") | safe }}
 </script>
 {% endblock %}

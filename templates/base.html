@@ -16,7 +16,9 @@
 
     <body>
         <div class="main">
+        {% include 'popup.html' %}
         {# A whole other HTML within this one. Idk if this is good practice.#}
+
         {% include 'header.html' %}
         {% block content %}
         {% endblock %}

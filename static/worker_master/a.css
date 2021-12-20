@@ -1,0 +1,58 @@
+.ReportTable {
+    max-height: 100%;
+    /*Table will get as big as it needs to, however it wont get bigger than the viewport.*/
+    max-width: 100%;
+    height: fit-content;
+}
+
+.FormContainer {
+    display: grid;
+    max-width: 30rem;
+    min-width: 20rem;
+    width: 50vw;
+    grid-template-columns: 1fr 1fr;
+}
+
+@media only screen and (max-width: 20rem) {
+    .FormContainer {
+        min-width: 100vw;
+       box-sizing:border-box;
+
+
+   }
+}
+
+.formbox {
+    width: 100%;
+    margin: 0;
+    padding: .2rem;
+}
+.mainform div{
+    color: black;
+}
+.form {
+    background-color: aquamarine;
+    display: grid;
+    justify-content: center;
+    justify-items: center;
+    height: fit-content;
+    grid-template-rows: max-content max-content;
+
+}
+
+.form div {
+    width: 100%;
+}
+
+#tablediv {
+    max-height: 100%;
+    max-width: 100%;
+    overflow: hidden;
+}
+#changeform {
+    display: grid;
+}
+
+#changeform label {
+    margin: .2rem;
+}

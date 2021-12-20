@@ -7,26 +7,30 @@ import json
 import database
 import function
 
+
+
 # Flask's "jsonify" serializes datetime objects into a stupid looking string. Using JSON library, I can
 # tell the serializer what to do when there's a datetime object, in this case it returns as string in
 # ISO 8601 format.
 
+def Error400(comment):
+	d = {}
+	d["comment"] = comment
+	return json.dumps(d), 400
+
 def json_serial(obj):
 	if isinstance(obj, (datetime, date)):
-		# print(obj.isoformat())
-
 		return obj.isoformat()
 	raise TypeError("Type %s not serializable" % type(obj))
 
-@app.route('/master', methods = ["GET", "POST"])
-def master():
+@app.route('/worker_master', methods = ["GET", "POST"])
+def worker_master():
 	if request.method == "GET":
 		data = {}
-		q = f"SELECT id, fname, lname FROM `student` WHERE `active` = 1"
+		q = f"SELECT id, fname, lname FROM `user`"
 		r = database.Execute(q, True)
-		data["student"] = r
-		data["school"] = function.Schools() # Return schools
-		return render_template("master.html", values=json.dumps(data))
+		data["user"] = r
+		return render_template("worker_master.html", values=json.dumps(data))
 
 
 	elif request.method == "POST":
@@ -42,70 +46,98 @@ def master():
 			# Get data about the particular student
 			id = rd["EntryBox"]
 			rq = (
-				" SELECT " 
-				" id, fname, lname, school, active" 
-				" FROM `student` " 
-				f" WHERE id = '{id}' "
+				' SELECT '
+				' id, fname, lname, username, email'
+				' FROM `user` '
+				f' WHERE id = \'{id}\' '
 			)
 			query["man"] = database.Execute(rq, auto_index=True)
+
 			if len(query["man"]) == 0:
-				return "", 400
+				return Error400("Worker is not in database.")
 
-			table = {} # easier to read.
-
-			# Get student's tickets.
-			rq = (
-				" SELECT " 
-				" id, date, action_id, info, user_id " 
-				" FROM `ticket` " 
-			   f" WHERE student_id = '{id}' "
+			# Get related tickets
+			table = function.Tickets(
+				where=f" WHERE user_id = '{id}' "
 			)
-			table["ticket"] = database.Execute(rq)
-			if len(table["ticket"]) == 0: # No tickets
-				print(query)
-				return json.dumps(query, default=json_serial), 200
 
-			# Determine which ID's need to be looked up in the DB.
-			# Shameful to do a loop on this but I dont know SQL well enough to write a slick query that could do this
-			# the proper way.
-			# I feel like this is better than bothering the database into doing a join on the previous query to get
-			# data from different tables.
-			seen = {}
-			seen["action_id"] = []
-			seen["user_id"] = []
+			if table:
+				query["table"] = table
 
-			str = {}
-			str["action_id"] = ""
-			str["user_id"] = ""
+			return json.dumps(query, default=json_serial), 200
 
-			iter = table["ticket"].values()
-			for i, row in enumerate(iter):
-				if row[3] not in seen["user_id"]:
-					seen["user_id"].append(row[3])
-					str["user_id"] += f" {row[3]},"
 
-				if row[1] not in seen["action_id"]:
-					seen["action_id"].append(row[1])
-					str["action_id"] += f" {row[1]},"
+		elif rd["intent"] == "save":
+			# with this setup, not every column has to be updated. TODO add on client
+			str = ""
+			options = [
+				("fname", 0),
+				("lname", 0),
+				("id", 1),
+				("email", 0),
+				("username", 0)
+			]
 
-			for i in str:
-				str[i] = str[i][:-1] # del last comma
+			for i, j in enumerate(options):
+				if rd.get(j[0]) is None: continue # Skip if blank
+				if j[1] == 0: str += (f" `{j[0]}` = '{rd[j[0]]}',") # str
+				elif j[1] == 1: str += (f" `{j[0]}` = {rd[j[0]]},") # int
+			str = str[:-1] # Remove last comma
 
-			# Get users related to query.
 			rq = (
-				" SELECT DISTINCT id, fname, lname FROM `user` " 			
-			   f" WHERE id IN ({str['user_id']}) "
+				 " UPDATE `user` SET "
+				 f"{str}"
+				f" WHERE `id` = {rd['EntryBox']}"
 			)
-			table["user"] = database.Execute(rq)
+			val = database.Execute(rq, auto_index=True)
 
-			# Get actions related to the query.
+			return "", 200
+
+@app.route('/student_master', methods = ["GET", "POST"])
+def student_master():
+	if request.method == "GET":
+		data = {}
+		q = f"SELECT id, fname, lname FROM `student` WHERE `active` = 1"
+		r = database.Execute(q, True)
+		data["student"] = r
+		data["school"] = function.Schools() # Return schools
+		return render_template("student_master.html", values=json.dumps(data))
+
+
+	elif request.method == "POST":
+		rd = request.form.to_dict()
+
+		if rd["intent"] == "query":
+			# EDITORS BEWARE:
+			# The order in which columns are in queries is crucial to how the client loads the data.
+
+			query = {} # data to give back to client.
+
+			# TODO figure out how to combine DB queries.
+			# Get data about the particular student
+			id = rd["EntryBox"]
 			rq = (
-				" SELECT DISTINCT id, type FROM `action` " 			
-			   f" WHERE id IN ({str['action_id']}) "
+				' SELECT '
+				' id, fname, lname, school, active'
+				' FROM `student` '
+				f' WHERE id = \'{id}\' '
 			)
-			table["action"] = database.Execute(rq)
+			query["man"] = database.Execute(rq, auto_index=True)
 
-			query["table"] = table
+			if len(query["man"]) == 0:
+				return Error400("Student is not in database.")
+
+			if id:
+				where = f" WHERE student_id = '{id}' "
+			else:
+				where = False
+
+			# Get student tickets
+			table = function.Tickets(where)
+
+			# add table if its not empty
+			if table:
+				query["table"] = table
 
 			# Return all this crap to client.
 			return json.dumps(query, default=json_serial), 200
@@ -170,10 +202,6 @@ def report():
 		return render_template("report.html", values=json.dumps(data))
 
 	else: # POST
-		#FIXME this explodes sometimes?
-		if not session.get("id"):
-			return "", 400
-
 		rd = request.form.to_dict()
 
 		if rd["isMobile"] == "true":
@@ -181,136 +209,65 @@ def report():
 		else:
 			isMobile = False
 
-		def ByDate(start, end, HadWhere):
-			# if were getting by date...
-			if rd.get("DateStartCheckbox") == "on":
-				if not IsDate(start):
-					return "", 400 #Ignore if doesnt look like a date.
-
-				# End date?
-				if rd.get("DateEndCheckbox") == "on":
-					if not IsDate(end):
-						return "", 400
-
-				# only doing one date, end should be start
-				else:
-					end = start
-
-				s = ""
-				if not HadWhere:
-					s+= " WHERE "
-				elif HadWhere:
-					s += " AND "
-				s += \
-					" date BETWEEN " \
-					f" '{start}' " \
-					" AND " \
-					f" '{end}' "
-				return s
-
-			# Add nothing to string if not checkbox was false.
-			else:
-				return ""
-
-		def IsDate(item):
-			if type(item) is list:
-				iter = item
-			else:
-				iter = []
-				iter.append(item)
-
-			for i in iter:
-				i = i.replace("-", "")  # remove dashes
-				if not i.isnumeric:  # Not a number
-					return False
-
-			return True
+		res = {}
+		table = {}
 
 		# Return all of a user's tickets.
 		if rd.get("ReportDropdown") == "user":
-			# Get tickets
-			import time
-			q = (
-				"SELECT id, date, action_id, info, user_id FROM ticket "
-			)
-
+			# Add where clause
 			entry = rd.get("EntryBox")
 			if entry is None or entry == "":
-				HadWhere = True
-				q += f" WHERE user_id = '{session['id']}' "
+				where = f" WHERE user_id = '{session['id']}' "
 			else:
-				HadWhere = False
-				q += f" WHERE user_id = '{entry}' "
+				where = f" WHERE user_id = '{entry}' "
 
-			q += ByDate(
-				rd.get("DateStart"), rd.get("DateEnd"), HadWhere
+			# Get tickets.
+			res["table"] = function.Tickets(
+				where,
+				(rd.get("DateStart"), rd.get("DateEnd"))
 			)
-
-			query = database.Execute(q)
-			toc = time.perf_counter()
-			return json.dumps(query, default=json_serial), 200
 
 		# Just return student's names + school
 		elif rd.get("ReportDropdown") == "name":
-			query = database.execute(
-				"SELECT fname, lname, t.shortname "
-				"FROM student "
-				"INNER JOIN school t on student.id = t.id",
-				True
+			q = (
+				" SELECT id, fname, lname, school "
+				" FROM student "
 			)
+			table["man"] = database.Execute(q, True)
+
+			table["school"] = function.Schools(False)
+
+			res["table"] = table
 
 		# Return a student's tickets.
 		elif rd.get("ReportDropdown") == "student":
-			if isMobile: # Mobile data
-				col = ["fname", "lname", "type", "date"]
-				HadWhere = False
-				rq = \
-					"SELECT student.fname, student.lname, action.type, date FROM `ticket` " \
-					"INNER JOIN `student` on ticket.student_id = student.id " \
-					f"INNER JOIN `action` on ticket.action_id = action.id "
-			else: # 'Puter data
-				col = ["fname", "lname", "type", "date", "info", "comment"]
-				HadWhere = False
-				rq = \
-					"SELECT student.fname, student.lname, action.type, date, info, comment FROM `ticket` " \
-					"INNER JOIN `student` on ticket.student_id = student.id " \
-					f"INNER JOIN `action` on ticket.action_id = action.id "
-
 			entry = rd.get('EntryBox')
-			if entry is None or entry == "":
-				pass
-
-			# If not none and not numeric, 400
-			elif not entry.isnumeric():
-				return "", 400
+			if entry:
+				where = f" WHERE student_id = '{entry}' "
 			else:
-				HadWhere = True
-				rq += f" WHERE student_id = '{entry}' "
+				where = False
 
-			rq += ByDate(
-				rd.get("DateStart"), rd.get("DateEnd"), HadWhere
+			# Get tickets.
+			res["table"] = function.Tickets(
+				where,
+				(rd.get("DateStart"), rd.get("DateEnd"))
 			)
 
-			query = database.execute(rq, True, Columns= col)
+		return json.dumps(res, default=json_serial), 200
 
-		else:
-			return "", 400
-
-		return jsonify(query), 200
-
-
+# FIXME refactor this page
 @app.route('/entry', methods = ["GET", "POST"])
 def entry():
 	if request.method == "GET":
 		data = {}
 		data["list"] = {}
 
-		query = database.execute(
+		query = database.Execute(
 			f"SELECT id, fname, lname, school FROM `student`", True
 		)
 		data["list"]["studentlist"] = query
 
-		query = database.execute(
+		query = database.Execute(
 			f"SELECT id, type FROM `action`", True
 		)
 		data["list"]["action"] = query
@@ -329,7 +286,7 @@ def entry():
 
 			# Make sure student's ID is in DB. TODO There is probably a fancy SQL query that could check if the
 			# student's id is in the DB and then insert if it is.
-			query = database.execute(
+			query = database.Execute(
 				f"SELECT id FROM `student` WHERE id = '{rd['student_id']}'"
 			)
 			if len(query) == 0:
@@ -337,7 +294,7 @@ def entry():
 
 			# Add ticket to database
 			# try:
-			query = database.execute(
+			query = database.Execute(
 				"INSERT INTO `ticket` "
 					"(`student_id`, `action_id`, `comment`, `info`, `date`, `timestamp`, `user_id`) "
 				"VALUES "

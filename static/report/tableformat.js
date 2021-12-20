@@ -1,104 +1,46 @@
 function TableFormat (choice, data) {
     console.log(data)
-    if (choice === "name") {
-        return new Tabulator("#ReportTable", {
-            data: data,
+    let table_id = "#ReportTable"
+    if (["user", "student"].includes(choice)) {
+        return TabulatorColumns["ticket"](table_id, data)
+    }
+    else if (choice === "name") {
+        let arr = Object.entries(data["man"])
+        return new Tabulator(table_id, {
+            data: arr,
             columns: [
                 {
-                    title: "Student", field: "name", sorter: "string", width: 200,
+                    title: "Student", field: "1", sorter: "string", width: 200,
                     formatter: function (cell) {
-                        let row = cell.getRow().getData();
-                        return title(row["fname"]) + " " + title(row["lname"]);
+                        let field = cell.getValue()
+                        return title(field[1]) + " " + title(field[2]);
                     }, download: false
                 },
 
-                {title:"First Name", field:"fname", visible:false, download:true},
-                {title:"Last Name", field:"lname", visible:false, download:true},
-
                 {
-                    title: "Home School", field: "shortname", sorter: "string",
-                }
+                    title:"First Name", field:"1", visible:false, download:true,
+                    formatter: function (cell) {
+                        let field = cell.getValue()
+                        return field[1]
+                    }
+                },
+                {
+                    title:"Last Name", field:"1", visible:false, download:true,
+                    formatter: function (cell) {
+                        let field = cell.getValue()
+                        return field[2]
+                    }
+                },
+                {
+                    title:"School", field:"1", visible:true, download:true,
+                    formatter: function (cell) {
+                        let field = cell.getValue()
+                        return data["school"][field[3]][0]
+                    }
+                },
             ],
 
         });
     }
 
-    else if (choice === "user") {
-        return new Tabulator("#ReportTable", {
-            data: data,
-            columns: [
-                {
-                    title: "User", field: "user", sorter: "string", width: 200,
-                    formatter: function (cell) {
-                        let row = cell.getRow().getData();
-                        return title(row["user_fname"]) + " " + title(row["user_lname"]);
-                    }, download:false
-                },
-                {title:"User First Name", field:"user_fname", visible:false, download:true},
-                {title:"User Last Name", field:"user_lname", visible:false, download:true},
-                {
-                    title: "Student", field: "student", sorter: "string",
-                    formatter: function (cell) {
-                        let row = cell.getRow().getData();
-                        return title(row["student_fname"]) + " " + title(row["student_lname"]);
-                    }, download:false
-                },
-                {title:"Student First Name", field:"student_fname", visible:false, download:true},
-                {title:"Student Last Name", field:"student_lname", visible:false, download:true},
-
-                {
-                    title: "Date", field: "date", sorter: "string",
-                    formatter: function (cell) {
-                        let row = cell.getRow().getData();
-                        let d = new Date(row["date"])
-                        let s = d.toLocaleDateString('en-US', {timeZone: 'UTC'})
-                        return s
-                    }, download:false
-                },
-                {title:"Date", field:"date", visible:false, download:true},
-                {
-                    title: "Type", field: "type", sorter: "string",
-                }
-            ]
-        });
-    }
-
-    else if (choice === "student") {
-        let columns = [
-            {
-                title: "Student", field: "name", sorter: "string", width: 200,
-                formatter: function (cell) {
-                    let row = cell.getRow().getData();
-                    return title(row["fname"]) + " " + title(row["lname"]);
-                }, download: false
-            },
-
-            {title:"First Name", field:"fname", visible:false, download:true},
-            {title:"Last Name", field:"lname", visible:false, download:true},
-
-            {
-                title: "Date", field: "date", sorter: "string",
-                formatter: function (cell) {
-                    let row = cell.getRow().getData();
-                    let d = new Date(row["date"])
-                    let s = d.toLocaleDateString('en-US', {timeZone: 'UTC'})
-                    return s
-                },
-            },
-            {
-                title: "Type", field: "type", sorter: "string",
-            }
-        ]
-        // Append the desktop only columns
-        if (isMobile === false) {
-            columns.push(
-                    {title:"Additional Info", field:"info", visible:true, download:true},
-                    {title:"Comment", field:"comment", visible:true, download:true},
-            )
-        }
-        return new Tabulator("#ReportTable", {
-            data: data,
-            columns: columns
-        });
-    }
 }
