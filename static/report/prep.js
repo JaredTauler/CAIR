@@ -5,8 +5,8 @@ HeaderTitle("Reports")
 // Populate student dropdown
 {
     let None = null
-    var list = VALUES
-    console.log(VALUES)
+    var list = VALUES["man"]
+    console.log(VALUES["drop"]["action"])
     for (let key in list) {
         for (let i in list[key]) {
             row = list[key][i]
@@ -24,6 +24,7 @@ HeaderTitle("Reports")
         }
     }
 }
+
 
 // Set date element's date.
 {

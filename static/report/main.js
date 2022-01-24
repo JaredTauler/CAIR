@@ -74,12 +74,29 @@ document.getElementById("ReportFetch").addEventListener("click", function(){
     }
 
     let DropDown = document.getElementById("ReportDropdown")
-
     DropDown.addEventListener("change", function() {DropDownDecide()})
+    let drop = document.getElementById("EntryDrop")
+    let text = document.getElementById("EntryBox")
     function DropDownDecide () {
-         // May as well do entrybox placeholder while were here.
         function EntryText (s) {
-            document.getElementById("EntryBox").placeholder = s
+            text.placeholder = s
+            text.hidden = false
+            drop.hidden = true
+        }
+        function EntryDrop (s) {
+            while (drop.hasChildNodes()) {
+                drop.firstChild.remove()
+            }
+
+            for (let key in s) {
+                console.log(key)
+                let opt = document.createElement('option');
+                opt.value = key;
+                opt.text = s[key];
+                drop.appendChild(opt);
+            }
+            text.hidden = true
+            drop.hidden = false
         }
 
         let state = false
@@ -95,6 +112,27 @@ document.getElementById("ReportFetch").addEventListener("click", function(){
         else if (DropDown.value === "user") {
             state = false
             EntryText("User ID")
+        }
+        else if (DropDown.value === "school") {
+            state = false
+            EntryDrop(
+                {"count": "Total number o"}
+            )
+        }
+        else if (DropDown.value === "action") {
+            state = false
+            EntryDrop(
+                // Options for dropdown is action table query + everything
+                Object.assign(
+                    {},
+                    VALUES["drop"]["action"],
+                    {"all": "Everything"}
+                )
+            )
+        }
+        else if (DropDown.value === "action_average") {
+           state = true
+            EntryText("")
         }
         else {
             state = true
@@ -123,5 +161,5 @@ document.getElementById("ReportFetch").addEventListener("click", function(){
 
 // This relies on the table format including hidden tables!
 function ExcelExport () {
-    ReportTableTabulator.download("csv", "data.csv", {sheetName:"MyData"});
+    ReportTableTabulator.download("xlsx", "data.xlsx", {sheetName:"MyData"});
 }

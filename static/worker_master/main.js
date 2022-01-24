@@ -18,7 +18,7 @@ function Fetch(){
 
                 // Table
                 if (response["table"] !== undefined) {
-                    let RowCount = Object.keys(response["table"]["ticket"]).length
+                    let RowCount = Object.keys(response["table"]["main"]).length
                     Statistic.hidden(false)
                     Statistic["total"].textContent = RowCount
                     document.getElementById("ReportTable").hidden = false
@@ -34,7 +34,7 @@ function Fetch(){
                         return Number(x)
                     }
 
-                    for (let value of Object.values(response["table"]["ticket"])) {
+                    for (let value of Object.values(response["table"]["main"])) {
                         x = value[0]
                         if (num(x) > num(bigger)) {
                             bigger = x

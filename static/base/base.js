@@ -1,6 +1,13 @@
 // Detect if mobile
-// TODO good way of doing this?
 var isMobile = window.matchMedia("only screen and (max-width: 760px)").matches;
+
+function getDate() {
+    var today = new Date();
+    var d = String(today.getDate()).padStart(2, '0');
+    var m = String(today.getMonth() + 1).padStart(2, '0'); //January is 0!
+    var y = today.getFullYear();
+    return y + '-' + m + '-' + d;
+}
 
 // Cookie om nom nom
 {

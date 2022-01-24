@@ -3,9 +3,28 @@ from database import Execute
 
 ### DB operations
 
-# TODO do
-# Goal of this function is to take input and find students.
-# def StudentSearch(engine):
+# Goal of this function is to take some input and find students that match said input.
+def StudentSearch(phrase, school=False, active=False):
+	rq = (
+		"SELECT " 
+    	"id, fname, lname "
+		"FROM "
+    	"student "
+		"WHERE "
+	)
+	if active:
+		rq += "(active = 1) AND "
+
+	if school:
+		rq += f"(school = {school}) AND " # Add school
+
+	rq += (
+		f"(fname RLIKE '{phrase}' "
+		"OR "
+		f"lname RLIKE '{phrase}') "
+	)
+
+	return Execute(rq)
 
 def IsDate(item):
 	if type(item) is list:
@@ -21,6 +40,11 @@ def IsDate(item):
 
 	return True
 
+def GetAction():
+	return Execute(
+		f"SELECT id, type FROM `action`", False
+	)
+
 def Schools(auto_index=True):
 	q = (
 		"SELECT id, fullname FROM `school`"
@@ -34,12 +58,17 @@ def ByDate(dater, HasWhere):
 		s += " WHERE "
 	elif HasWhere:
 		s += " AND "
-	s += (
-		" date BETWEEN " 
-		f" '{dater[0]}' " 
-		" AND " 
-		f" '{dater[1]}' "
-	)
+	if dater[1]:
+		s += (
+			" date BETWEEN " 
+			f" '{dater[0]}' " 
+			" AND " 
+			f" '{dater[1]}' "
+		)
+	else:
+		s += (
+			f" date = '{dater[0]}'"
+		)
 	return s
 
 
@@ -83,37 +112,38 @@ def Tickets(where, dater=()):
 	if where:
 		rq += where
 
-	# FIXME date dont work
-	# if dater != ():
-	# 	rq += ByDate(dater, where)
+	# date range thingy (i sleepy ok)
+	if dater[0]:
+		rq += ByDate(dater, where)
 
-	table["ticket"] = Execute(rq)
+	table["main"] = Execute(rq)
 
-	if len(table["ticket"]) == 0:  # No tickets
+	if len(table["main"]) == 0:  # No tickets
 		return False
 
 	String = Find_ID(
-		table["ticket"], (1, 3, 4)
+		table["main"], (1, 3, 4)
 	)
 	# Get users related to query.
 	rq = (
 		" SELECT DISTINCT id, fname, lname FROM `user` "
 		f" WHERE id IN ({String[3]}) "
 	)
-	table["user"] = Execute(rq)
+	table["join"] = {}
+	table["join"]["user"] = Execute(rq)
 
 	# Get students related to the query.
 	rq = (
 		" SELECT DISTINCT id, fname, lname FROM `student` "
 		f" WHERE id IN ({String[4]}) "
 	)
-	table["student"] = Execute(rq)
+	table["join"]["student"] = Execute(rq)
 
 	# Get actions related to the query.
 	rq = (
 		" SELECT DISTINCT id, type FROM `action` "
 		f" WHERE id IN ({String[1]}) "
 	)
-	table["action"] = Execute(rq)
+	table["join"]["action"] = Execute(rq)
 
 	return table

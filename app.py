@@ -34,7 +34,7 @@ db.create_all()
 import route
 
 # Routes not logged in users can access.
-# TODO remember to keep this updated
+# remember to keep this updated
 NoLoginWhitelist = [
 	"/login",
 	"/static/login/login.css", "/static/base/base.css", "/static/common.css", "/static/header/header.css",
@@ -43,7 +43,6 @@ NoLoginWhitelist = [
 
 ]
 
-# TODO better way of keeping unauthorized users out?
 @app.before_request
 def guide():
 	if not session.get("id"): # If not logged in,

@@ -1,11 +1,3 @@
-// TODO cleanup!!!
-function title(str) {
-    if (str === undefined) {return "undefined"}
-    let newstr = str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-    if (newstr === undefined) {return "undefined"}
-    else {return newstr}
-}
-
 function isNumeric(n) {
   return !isNaN(parseFloat(n)) && isFinite(n);
 }
@@ -15,10 +7,6 @@ function newoption(opt, key) {
     select.appendChild(opt);
 }
 
-
-
-
-// student id box
 // event listener for when user changes it
 document.getElementById("student_id").addEventListener("focusout", function () {
     CheckID()
@@ -35,7 +23,6 @@ function CheckID () {
     }
 }
 
-
 // Form submission logic.
 let form = document.querySelector("#mainform")
 $("#mainform").submit(function (event) {
@@ -43,11 +30,6 @@ $("#mainform").submit(function (event) {
 
     // Get all data from form.
     let formData = new FormData(document.querySelector('#mainform'))
-
-    // TODO for debugging
-    for (var pair of formData.entries()) {
-         console.log(pair[0]+ ', ' + pair[1]);
-    }
 
     // Post to server
     $.ajax({

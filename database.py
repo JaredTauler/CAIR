@@ -13,8 +13,7 @@ def Execute(query, auto_index=False):
 
 	def func(i, row):
 		json_data[i] = row
-
-	# TODO possible to do this without a loop?
+	# possible to do this without a loop?
 	if auto_index:
 		for i, row in enumerate(fetch):
 			func(i, row)
