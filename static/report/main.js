@@ -35,7 +35,7 @@ document.getElementById("ReportFetch").addEventListener("click", function(){
 })
 
 // Logic for when date elements should be disabled or enabled.
-// Im sure there is a much more simpler way of doing this. I dont know that way, but this works flawlessly and efficently.
+// Im sure there is a much more simpler way of doing this. I dont know that way, but this works flawlessly.
 {
     let StartCheckBox = document.getElementById("DateStartCheckbox")
     StartCheckBox.addEventListener("change", function () {
@@ -74,18 +74,20 @@ document.getElementById("ReportFetch").addEventListener("click", function(){
     }
 
     let DropDown = document.getElementById("ReportDropdown")
-    DropDown.addEventListener("change", function() {DropDownDecide()})
-    let drop = document.getElementById("EntryDrop")
+    var EntryDrop = document.getElementById("EntryDrop")
     let text = document.getElementById("EntryBox")
+
+    DropDown.addEventListener("change", function() {DropDownDecide()})
+
     function DropDownDecide () {
         function EntryText (s) {
             text.placeholder = s
             text.hidden = false
-            drop.hidden = true
+            EntryDrop.hidden = true
         }
-        function EntryDrop (s) {
-            while (drop.hasChildNodes()) {
-                drop.firstChild.remove()
+        function SetEntryDrop (s) {
+            while (EntryDrop.hasChildNodes()) {
+                EntryDrop.firstChild.remove()
             }
 
             for (let key in s) {
@@ -93,69 +95,82 @@ document.getElementById("ReportFetch").addEventListener("click", function(){
                 let opt = document.createElement('option');
                 opt.value = key;
                 opt.text = s[key];
-                drop.appendChild(opt);
+                EntryDrop.appendChild(opt);
             }
             text.hidden = true
-            drop.hidden = false
+            EntryDrop.hidden = false
+        }
+        function DropDecide(valueToSelect) {
+            EntryDrop.value = valueToSelect;
         }
 
         let state = false
 
         if (DropDown.value === "name") {
-            state = true
+            state = [0,0,0,0,0]
             EntryText("")
         }
         else if (DropDown.value === "student") {
-            state = false
+            state = [1,1,1,1,1]
             EntryText("Student ID")
         }
         else if (DropDown.value === "user") {
-            state = false
+            state = [1,1,1,1,1]
             EntryText("User ID")
         }
-        else if (DropDown.value === "school") {
-            state = false
-            EntryDrop(
-                {"count": "Total number o"}
+        else if (DropDown.value === "school_percent") {
+            state = [1,1,1,1,1]
+            EntryText("")
+            SetEntryDrop(
+                Object.assign({},
+                    VALUES["man"]["school"],
+                    {"all": "All Schools"}
+                )
             )
+            DropDecide("all")
         }
-        else if (DropDown.value === "action") {
-            state = false
-            EntryDrop(
+        else if (DropDown.value === "action_type") {
+            state = [1,1,1,1,1]
+            SetEntryDrop(
                 // Options for dropdown is action table query + everything
                 Object.assign(
                     {},
-                    VALUES["drop"]["action"],
+                    VALUES["drop"]["action_type"],
                     {"all": "Everything"}
+
                 )
             )
+            DropDecide("all")
         }
         else if (DropDown.value === "action_average") {
-           state = true
+           state = [1,1,1,1,0]
             EntryText("")
         }
         else {
-            state = true
+            state = [0,0,0,0,0]
             EntryText("")
         }
 
-        // List of elements to be updated
-        let ElemArray = {
-            "DateStart": state, "DateEnd": state,
-            "DateStartCheckbox": state, "DateEndCheckbox": state,
-            "EntryBox": state
 
+        // List of elements to be updated
+        let ElemList = [
+            "DateStart", "DateEnd",
+            "DateStartCheckbox", "DateEndCheckbox",
+            "EntryBox"
+        ]
+        let ElemArray = {}
+        for (let i in state) {
+            ElemArray[ElemList[i]] = state[i] === 0
         }
 
-        // If the disabled property is being set to false, run the Checkbox logic with the previously made array to see
-        // if any elements need to be left disabled.
-        if (state === false) {
+        // run the Checkbox logic with the previously made array to see if any elements need to be left disabled.
+        if (ElemArray["DateStart"] === false) {
             ElemArray = CheckBoxDecide(ElemArray)
         }
 
         DateState(ElemArray)
     }
-    // Run once after done setting up listeners.
+    // Run once after done setting up.
     DropDownDecide()
 }
 

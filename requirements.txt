@@ -3,4 +3,8 @@ pyyaml
 flask
 flask-session
 flask-sqlalchemy
+flask_login
+
 mysqlclient
+mysql-connector-python
+mysql

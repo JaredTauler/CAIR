@@ -24,33 +24,54 @@ function CheckID () {
 }
 
 // Form submission logic.
-let form = document.querySelector("#mainform")
-$("#mainform").submit(function (event) {
+// let form = document.querySelector("#mainform")
+// $("#mainform").submit(function (event) {
+//     if (!CheckID()) {return false} // If no ID, dont bother sending POST.
+//
+//     // Get all data from form.
+//     let formData = new FormData(document.querySelector('#mainform'))
+//
+//     // Post to server
+//     $.ajax({
+//         type: "POST",
+//         url: window.location.href,
+//         dataType: "json",
+//         processData: false,
+//         contentType: false,
+//         encode: true,
+//         data: formData,
+//
+//     // On response data:
+//     }).done(function (data) {
+//
+//     });
+//
+//     event.preventDefault();
+//     return false;
+// });
+document.getElementById("submitbutton").addEventListener("click", function() {
+    let formData = new FormData(document.getElementById("mainform")) // Get form data
     if (!CheckID()) {return false} // If no ID, dont bother sending POST.
 
-    // Get all data from form.
-    let formData = new FormData(document.querySelector('#mainform'))
+    var xhttp = new XMLHttpRequest();
+    xhttp.onreadystatechange = function () {
+        console.log(this.status)
+        if (this.readyState == 4) { // If ready
+            if (this.response !== "") {
+                response = JSON.parse(this.response)
+            }
+            if (this.status == 200) {
+                // if (data["result"] === "pick") {
+                //     openModal(PickStudent, data["query"])
+                // }
 
-    // Post to server
-    $.ajax({
-        type: "POST",
-        url: window.location.href,
-        dataType: "json",
-        processData: false,
-        contentType: false,
-        encode: true,
-        data: formData,
-
-    // On response data:
-    }).done(function (data) {
-        if (data["result"] === "pick") {
-            openModal(PickStudent, data["query"])
+                return false
+            }
         }
+    };
 
-        return false
-    });
+    xhttp.open("POST", window.location.href, false);
+    xhttp.send(formData);
 
-    event.preventDefault();
     return false;
-});
-
+})

@@ -17,16 +17,28 @@ function TableFormat (choice, table) {
     if (["user", "student"].includes(choice)) {
         return TabulatorColumns["ticket"](table_id, table)
     }
-    else if (choice === "action") {
-        console.log(table)
+    else if (choice === "action_average") {
         return new Tabulator(table_id, {
             data: TableForTabul(table),
             columns: [
                 {
-                    title: "Interaction Type", field: "action", sorter: "string", width: 200,
+                    title: "Average number of days a ticket is open", field: "average",
+                    mutator: function (value, data, type, params, component) {
+                        return data[0]
+                    }, download: true
+                },
+            ],
+        });
+    }
+    else if (choice === "action_type") {
+        return new Tabulator(table_id, {
+            data: TableForTabul(table),
+            columns: [
+                {
+                    title: "Interaction Type", field: "action_type", sorter: "string", width: 200,
                     mutator: function (value, data, type, params, component) {
 
-                        return VALUES["drop"]["action"][data[0]][0]
+                        return VALUES["drop"]["action_type"][data[0]][0]
                     }, download: true
                 },
                 {
@@ -39,7 +51,6 @@ function TableFormat (choice, table) {
         });
     }
     else if (choice === "name") {
-        console.log(table)
         return new Tabulator(table_id, {
             data: TableForTabul(table),
             columns: [
@@ -65,12 +76,84 @@ function TableFormat (choice, table) {
                 {
                     title:"School", field:"school", visible:true, download:true,
                     mutator: function (value, data, type, params, component) {
-                        return table["join"]["schools"][data[3]][0];
+                        return VALUES["man"]["school"][data[3]][0];
                     }
                 },
             ],
 
         });
+    }
+    else if (choice === "school_percent") {
+         if (EntryDrop.value === "all") {
+             return new Tabulator(table_id, {
+                data: TableForTabul(table),
+                columns: [
+                    {
+                        title:"School", field:"school", visible:true, download:true,
+                        mutator: function (value, data, type, params, component) {
+                            return VALUES["man"]["school"][data[0]][0];
+                        }
+                    },
+                    {
+                        title:"Total", field: "total", download:true,
+                        mutator: function (value, data, type, params, component) {
+                            return data[1]
+                        }
+                    },
+                    {
+                        title:"Percent", field: "percent", download:true,
+                        mutator: function (value, data, type, params, component) {
+                            let total = 0
+                            for (let i in table["main"]) {
+                                total += table["main"][i][1]
+                            }
+                            let x = data[1]/total
+                            x = x * 100
+                            x = Math.round(x)
+                            x = x.toString(10) + "%"
+                            return x
+
+                        }
+                    },
+                ],
+
+             });
+         } else {
+             return new Tabulator(table_id, {
+                data: TableForTabul(table),
+                columns: [
+                    {
+                        title:"Action", field:"action", visible:true, download:true,
+                        mutator: function (value, data, type, params, component) {
+                            console.log(VALUES)
+                            return VALUES["drop"]["action_type"][data[0]][0];
+                        }
+                    },
+                    {
+                        title:"Total", field: "total", download:true,
+                        mutator: function (value, data, type, params, component) {
+                            return data[1]
+                        }
+                    },
+                    {
+                        title:"Percent", field: "percent", download:true,
+                        mutator: function (value, data, type, params, component) {
+                            let total = 0
+                            for (let i in table["main"]) {
+                                total += table["main"][i][1]
+                            }
+                            let x = data[1]/total
+                            x = x * 100
+                            x = Math.round(x)
+                            x = x.toString(10) + "%"
+                            return x
+
+                        }
+                    },
+                ],
+
+             });
+         }
     }
 
 }

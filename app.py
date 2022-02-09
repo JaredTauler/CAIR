@@ -1,16 +1,13 @@
 # Jared Tauler 10/20/21
 
 import os
-
 import yaml
 
 # flask
 from flask import Flask, abort, redirect, url_for, request, session
 from flask_session import Session
-from flask_sqlalchemy import SQLAlchemy
 
 os.chdir("C:\\Users\\Student\\PycharmProjects\\CAIR")
-# os.chdir("C:\\Users\\Jared\\PycharmProjects\\CAIR")
 
 # Load config
 with open("config.yaml", "r") as f:
@@ -23,14 +20,11 @@ DEBUG = cfg["DEBUG"]
 app = Flask(__name__)
 
 app.secret_key = os.urandom(16)
-db = SQLAlchemy(app)
+# db = SQLAlchemy(app)
 
-app.config['SESSION_TYPE'] = 'sqlalchemy'
-app.config['SQLALCHEMY_DATABASE_URI'] = DBstr
-app.config["SESSION_SQLALCHEMY"] = db
+app.config['SESSION_TYPE'] = "filesystem"
 
 sess = Session(app)
-db.create_all()
 import route
 
 # Routes not logged in users can access.
@@ -40,6 +34,7 @@ NoLoginWhitelist = [
 	"/static/login/login.css", "/static/base/base.css", "/static/common.css", "/static/header/header.css",
 	"/static/login/login.js", "/static/base/base.js", "/static/header/header.js",
 	"/static/berklogo.png", "/static/favicon.ico",
+	"/static/popup/style.css", "/static/popup/main.js"
 
 ]
 

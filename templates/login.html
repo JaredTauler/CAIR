@@ -10,16 +10,17 @@
 {% block content %}
 <div style="display: grid; justify-items: center;">
     <img src="{{ url_for('static', filename='berklogo.png') }}" class="logo">
-    <form style="display: grid">
+    <form style="display: grid" id="LoginForm">
         <p id="problem"></p>
         <input type="text" id="username" placeholder="User ID" class="glowfocus smooth formbox"><br><br>
         <input type="text" id="password" placeholder="Password" class="glowfocus smooth formbox"><br><br>
-        <input type="submit" value="Login" class="button smooth">
+        <input type="button" value="Login" class="button smooth" id="LoginButton">
     </form>
 </div>
 {% endblock %}
 
 {% block script %}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossOrigin="anonymous"></script>
     <script>
         {{ static_include("login/login.js") | safe }}
     </script>

@@ -1,0 +1,15 @@
+ /*style="display: grid"*/
+.GridBox {
+    display: grid;
+    grid-template-columns: 100px 100px 100px;
+    grid-gap: 10%;
+    grid-template-columns: repeat(2, 1fr);
+}
+.GridBox input {
+    /*margin: 10px;*/
+    padding: 7%;
+     background-color: #08d008;
+    border-radius: 5px;
+    text-align: center;
+}
+/*smooth, glowfocus*/

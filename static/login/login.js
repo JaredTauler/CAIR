@@ -1,5 +1,4 @@
 HeaderTitle("Attendance Centralized Interaction Reporting")
-
 let username = document.querySelector("#username")
 let password = document.querySelector("#password")
 const FormElements = [username, password]
@@ -18,46 +17,46 @@ function CheckElement(element) {
     return false
 };
 
-$(document).ready(function () {
-    $("form").submit(function (event) {
-        let exit = false
-        // Check each element before going ahead with the POST.
-        FormElements.forEach(function (x, i)
-            {if (CheckElement(x)) {
-                    exit = true
-                    return false // Break loop
-                }
+document.getElementById("LoginButton").addEventListener("click", function(){
+    let exit = false
+    // Check each element before going ahead with the POST.
+    FormElements.forEach(function (x, i)
+        {if (CheckElement(x)) {
+                exit = true
+                return false // Break loop
             }
-        )
-        if (exit) {return false} // Break function if loop found elements guilty.
+        }
+    )
+    if (exit) {return false} // Break function if loop found elements guilty.
 
-        console.log(username.attributes)
-        let formData = {
-            "username": $("#username").val(),
-            "password": $("#password").val(),
-        };
-        console.log(formData);
-        // Post to server
-        $.ajax({
-            type: "POST",
-            url: window.location.href,
-            dataType: "json",
-            encode: true,
-            data: formData,
-        // On response data:
-        }).done(function (data) {
-            if (data[0] === "redirect") {
-                let cookie = JSON.parse(document.cookie)
-                cookie["logged_in"] = true
-                document.cookie = JSON.stringify(cookie)
-                window.location.href = data[1]
+    let formData = {
+        "username": $("#username").val(),
+        "password": $("#password").val(),
+    };
+
+    $.ajax({
+        type: "POST",
+        url: window.location.href,
+        dataType: "json",
+        encode: true,
+        data: formData,
+    // On response data:
+    }).done(function (data) {
+        if (data[0] === "bad") {
+            console.log(data[1])
+            // TODO tell user why couldnt log in.
+        }
+        if (data[0] === "redirect") {
+            let cookie = JSON.parse(document.cookie)
+            cookie["logged_in"] = true
+            document.cookie = JSON.stringify(cookie)
+            window.location.href = data[1]
 
 
-            }
-            // TODO Tell user why couldnt login.
-        });
+        }
 
-        event.preventDefault();
-        return false;
     });
+
+    event.preventDefault();
+    return false;
 });

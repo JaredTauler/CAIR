@@ -1,4 +1,4 @@
-from app import app
+from app import app, DEBUG
 from flask import Flask, abort, redirect, url_for, render_template, request, session, jsonify, Blueprint
 from datetime import date, datetime
 
@@ -10,8 +10,6 @@ import database
 import function
 
 import hashlib
-
-
 
 # Flask's "jsonify" serializes datetime objects into a stupid looking string. Using JSON library, I can
 # tell the serializer what to do when there's a datetime object, in this case it returns as string in
@@ -201,6 +199,8 @@ def report():
 		data["man"] = {}
 		data["drop"] = {}
 
+		data["man"]["school"] = function.Schools(False)
+
 		q = f"SELECT id, fname, lname FROM `student` WHERE `active` = 1"
 		r = database.Execute(q, True)
 		data["man"]["student"] = r
@@ -209,7 +209,7 @@ def report():
 		r = database.Execute(q)
 		data["man"]["user"] = r
 
-		data["drop"]["action"] = function.GetAction()
+		data["drop"]["action_type"] = function.GetAction()
 
 		return render_template("report.html", values=json.dumps(data))
 
@@ -224,7 +224,7 @@ def report():
 			isMobile = False
 
 		res = {}
-		table = {}
+		res["table"] = {}
 
 		# Return all of a user's tickets.
 		if intent == "user":
@@ -248,11 +248,7 @@ def report():
 				" SELECT id, fname, lname, school "
 				" FROM student "
 			)
-			table["main"] = database.Execute(q, True)
-			table["join"] = {}
-			table["join"]["schools"] = function.Schools(False)
-
-			res["table"] = table
+			res["table"]["main"] = database.Execute(q, True)
 
 		# Return a student's tickets.
 		elif intent == "student":
@@ -268,7 +264,6 @@ def report():
 				(rd.get("DateStart"), rd.get("DateEnd"))
 			)
 
-
 		# Intervention Statistics
 		elif intent == "action_average":
 			action = rd.get("EntryDrop")
@@ -276,37 +271,35 @@ def report():
 			q = (
 				" SELECT timestamp, closed FROM ticket_old "
 			)
+
 			if rd.get("DateStart"):
 				q += function.ByDate(
 					(rd.get("DateStart"), rd.get("DateEnd")),  # le dates
 					False  # has no where!
 				)
 			r = database.Execute(q, True)
+			if r != {}:
+				def seconds(date):
+					x = date - datetime(1900, 1, 1)
+					return x.total_seconds()
 
-			def seconds(date):
-				x = date - datetime(1900, 1, 1)
-				return x.total_seconds()
+				# create list of seconds, being difference between timestamp and closed date
+				SecondsList = [
+					seconds(i[1]) - seconds(i[0])
+					for i in r.values()
+				]
 
-			# create list of seconds, being difference between timestamp and closed date
-			SecondsList = [
-				seconds(i[1]) - seconds(i[0])
-				for i in r.values()
-			]
+				# find median
+				x = 0.0
+				for i in SecondsList:
+					x += i
+				x = x / len(SecondsList)
 
-			# find median
-			x = 0.0
-			for i in SecondsList:
-				x += i
-			x = x / len(SecondsList)
+				x = x // 86400  # floor divide magic number to turn seconds into days
+				# prep for client.
+				res["table"]["main"] = {0: [x]}
 
-			x = x // 86400  # floor divide magic number to turn seconds into days
-
-			# prep for client.
-			table["main"] = {0: x}
-			res["table"] = table
-
-
-		elif intent == "action":
+		elif intent == "action_type":
 			action = rd.get("EntryDrop")
 			q = (
 				" SELECT action_id, COUNT(action_id) FROM ticket "
@@ -321,17 +314,56 @@ def report():
 					HasWhere
 				)
 			q += " GROUP BY action_id "
-			res = {}
-
-			res["table"] = {}
 			res["table"]["main"] = database.Execute(q, auto_index=True)
-			print(res)
 
+		# School Statistics
+		elif intent == "school_percent":
+			action = rd.get("EntryDrop")
+
+			school = rd["EntryDrop"]
+			if school != "all":
+				q = (
+					" SELECT DISTINCT action_id, COUNT(action_id) "
+					" FROM ticket "
+					" JOIN student S on S.id = ticket.student_id "
+					f" WHERE S.school = {school} "
+				)
+
+				if rd.get("DateStart"):
+					q += function.ByDate(
+						(rd.get("DateStart"), rd.get("DateEnd")),  # le dates
+						True
+					)
+
+				q += (
+					" GROUP BY action_id "
+				)
+				r = database.Execute(q, True)
+				print(r)
+
+			else:
+				q = (
+					" SELECT DISTINCT S.school, COUNT(S.school) "
+					" FROM ticket JOIN student S on S.id = ticket.student_id "
+				)
+
+				if rd.get("DateStart"):
+					q += function.ByDate(
+						(rd.get("DateStart"), rd.get("DateEnd")),  # le dates
+						False
+					)
+
+				q += " GROUP BY S.school "
+
+			r = database.Execute(q, True)
+			if r != {}:
+				res["table"]["main"] = r
+
+		print(json.dumps(res, default=json_serial))
 		return json.dumps(res, default=json_serial), 200
 
 @app.route('/entry', methods = ["GET", "POST"])
 def entry():
-	DEBUG = False
 	if request.method == "GET":
 		data = {}
 		data["list"] = {}
@@ -343,7 +375,7 @@ def entry():
 
 		data["list"]["action"] = function.GetAction()
 
-		return render_template("entry.html", values=data)
+		return render_template("entry.html", values=json.dumps(data))
 
 	else: # POST
 		rd = request.form.to_dict()
@@ -370,89 +402,78 @@ def entry():
 
 @app.route('/login', methods = ["GET", "POST"])
 def login():
-	DEBUG = True
 	if request.method == "GET":
 		return render_template("login.html")
 
 	# Login routine.
 	else: # POST
-		class BadPassword(Exception): pass
-		class BadUsername(Exception): pass
-		try:
-			# Get data from form
-			requestdict = request.form.to_dict()
-			print(requestdict)
-			if requestdict == {}: abort(406) # Abort on blank form.
-			if requestdict["username"] == "": raise BadUsername()
-			if requestdict["password"] == "": raise BadPassword()
+		bad = {}
+		bad["username"] = jsonify(["bad", "username"]), 200
+		bad["password"] = jsonify(["bad", "password"]), 200
+		# Get data from form
+		requestdict = request.form.to_dict()
+		if requestdict == {}: abort(406) # Abort on blank form.
+		if requestdict["username"] == "": return bad["username"]
+		if requestdict["password"] == "": return bad["password"]
 
-			# Encode password, wont need to look directly at it.
-			requestdict['password'] = requestdict['password'].encode('utf-8')
+		# Encode password
+		requestdict['password'] = requestdict['password'].encode('utf-8')
 
-			# Search database for given username.
-			query = (
-				f"SELECT `salt`, `password`, `id` FROM `user` "
-				f"WHERE `username` = '{requestdict['username']}'"
-			)
-			res = database.Execute(
-				query, auto_index=True
-			)
-			print(query)
+		# Search database for given username.
+		query = (
+			f"SELECT `salt`, `password`, `id` FROM `user` "
+			f"WHERE `username` = '{requestdict['username']}'"
+		)
+		res = database.Execute(
+			query, auto_index=True
+		)
 
-			if res == {}:
-				raise BadUsername()
-			else:
-				result = res[0]
+		if res == {}:
+			print("bad user")
+			return jsonify(["bad", "username"]), 200
+		else:
+			result = res[0]
 
-			fromDB = {}
-			fromDB["salt"] = bytes.fromhex(result[0]) # Go ahead and convert salt to bytes.
-			fromDB["password"] = result[1]
-			fromDB["id"] = result[2]
+		fromDB = {}
 
-			# Hash password given from form using salt from database.
-			hashed = hashlib.pbkdf2_hmac(
-				'sha256',
-				requestdict['password'],
-				fromDB["salt"],
-				100000
-			)
+		fromDB["salt"] = bytes.fromhex(result[0]) # Go ahead and convert salt to bytes.
+		fromDB["password"] = result[1]
+		fromDB["id"] = result[2]
 
-			hashed = hashed.hex() # To hex.
+		# Hash password given from form using salt from database.
+		hashed = hashlib.pbkdf2_hmac(
+			'sha256',
+			requestdict['password'],
+			fromDB["salt"],
+			100000
+		)
 
-			# If password from form == password in DB login user.
-			if hashed == fromDB["password"]:
-				session["id"] = fromDB["id"]
-				print("Logged in")
-				return jsonify(["redirect", url_for("home")]), 200
+		hashed = hashed.hex() # To hex.
 
-			else:
-				raise BadPassword()
+		# If password from form == password in DB login user.
+		if hashed == fromDB["password"]:
+			session["id"] = fromDB["id"]
+			print("Logged in")
+			return jsonify(["redirect", url_for("home")]), 200
 
-		except Exception as e:
-			if type(e) == BadPassword: info = "password"
-			elif type(e) == BadUsername: info = "username"
-			else: # Unknown error
-				if DEBUG == True: # Dont handle excepection if debug mode
-					raise e
-				info = "unknown"
+		else:
+			print("bad password")
+			return bad["password"]
 
-			return jsonify(["bad", info]), 200
-
-
-# TODO temporary
-@app.route("/newuser", methods = ["GET", "POST"])
-def Usermake():
-	print(request.form.getlist('username[]'))
-	# password hashing
-	username = "hi"
-	email = "bruh"
-	salt = os.urandom(32)
-	print(salt.hex())
-	password = "a"
-	hashed = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
-
-	database.Execute(
-		"INSERT INTO `user` (`username`, `email`, `password`, `salt`)"
-		f"VALUES ('{username}', '{email}', '{hashed.hex()}', '{salt.hex()}')"
-	)
-	return "made dummy"
+# # TODO temporary
+# @app.route("/newuser", methods = ["GET", "POST"])
+# def Usermake():
+# 	print(request.form.getlist('username[]'))
+# 	# password hashing
+# 	username = "hi"
+# 	email = "bruh"
+# 	salt = os.urandom(32)
+# 	print(salt.hex())
+# 	password = "a"
+# 	hashed = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
+#
+# 	database.Execute(
+# 		"INSERT INTO `user` (`username`, `email`, `password`, `salt`)"
+# 		f"VALUES ('{username}', '{email}', '{hashed.hex()}', '{salt.hex()}')"
+# 	)
+# 	return "made dummy"

@@ -2,18 +2,21 @@
 {% block head %}
 <head>
     <title>CAIR Home</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='home/home.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='common.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='home/style.css') }}">
 
 </head>
 {% endblock %}
 
 {% block content %}
-    home page
+    <div class="GridBox" id="wrapper">
+    </div>
 {% endblock %}
 
 {%  block script %}
     <script type="text/javascript">
-        const VALUES = {{ values|safe }} // IMPORTANT, this passes values passed to the jinja template to the JS file.
-{#        {{ static_include("home/home.js") | safe }}#}
+        {#const VALUES = {{ values|safe }} // IMPORTANT, this passes values passed to the jinja template to the JS file.#}
+        {{ static_include("home/prep.js") | safe }}
+        {{ static_include("home/main.js") | safe }}
     </script>
 {% endblock %}

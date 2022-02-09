@@ -1,5 +1,5 @@
 .header {
-    background-color: yellow;
+    background-color: #2457c9;
     position: sticky;
     /*FIXME This is not a good fix and could break*/
     z-index: 999;

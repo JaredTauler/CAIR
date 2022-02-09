@@ -7,24 +7,20 @@ document.getElementById('date').value = getDate()
 {
     let None = null
     var list = VALUES["list"]
-
+    console.log(list)
     for (let key in list) {
         for (let i in list[key]) {
             row = list[key][i]
-            console.log(row)
+            console.log(row, i)
             let opt = document.createElement('option');
 
-            // Decide how to handle data depending on what list is being drawn from. This seemed like the best
-            // way to do it.
-
             if (key === "studentlist") {
-                opt.text = "".concat(title(row["fname"]), " ", title(row["lname"]));
-                opt.value = row["id"]
+                opt.text = "".concat(title(row[1]), " ", title(row[2]));
+                opt.value = row[0];
             } else if (key === "action") {
-                opt.text = "".concat(row["type"]);
-                opt.value = row["id"];
+                opt.text = row[0];
+                opt.value = i;
             }
-
             newoption(opt, key);
         }
     }

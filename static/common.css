@@ -5,7 +5,7 @@
 
 
 .main {
-    background-color: aquamarine;
+    background-color: #fffdcd;
     display: grid;
     justify-content: center;
     justify-items: center;
@@ -16,7 +16,7 @@
 
 .button {
     display: block;
-    background-color: red !important;
+    background-color: #1563f3 !important;
     border-style: none;
     color: white;
     text-align: center;
@@ -75,5 +75,15 @@ button:focus {
 
 .badbox {
    transition: 0.2s;
-    box-shadow: 0 0 3px 2px red;
+    box-shadow: 0 0 3px 2px #cc0001;
+}
+
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+     -khtml-user-select: none; /* Konqueror HTML */
+       -moz-user-select: none; /* Old versions of Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
 }

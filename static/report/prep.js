@@ -5,8 +5,9 @@ HeaderTitle("Reports")
 // Populate student dropdown
 {
     let None = null
+
     var list = VALUES["man"]
-    console.log(VALUES["drop"]["action"])
+    console.log(VALUES["drop"])
     for (let key in list) {
         for (let i in list[key]) {
             row = list[key][i]
