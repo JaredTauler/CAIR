@@ -21,9 +21,12 @@ document.getElementById("ReportFetch").addEventListener("click", function(){
                         response["table"]
                     )
                 } else {
-                    console.log("no data")
-                    // TODO no data
+                    PopupText("No data to show.")
+                    ShowPopup()
                 }
+            } else if (this.status == 500) {
+                PopupError(response)
+                ShowPopup()
             }
         }
     };

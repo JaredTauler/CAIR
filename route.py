@@ -3,13 +3,11 @@ from flask import Flask, abort, redirect, url_for, render_template, request, ses
 from datetime import date, datetime
 
 import os
-
+import hashlib
 import json
 
 import database
 import function
-
-import hashlib
 
 # Flask's "jsonify" serializes datetime objects into a stupid looking string. Using JSON library, I can
 # tell the serializer what to do when there's a datetime object, in this case it returns as string in
@@ -48,57 +46,93 @@ def worker_master():
 
 
 	elif request.method == "POST":
-		rd = request.form.to_dict()
+		try:
+			rd = request.form.to_dict()
 
-		if rd["intent"] == "query":
-			# EDITORS BEWARE:
-			# The order in which columns are in queries is crucial to how the client loads the data.
+			if rd["intent"] == "query":
+				# EDITORS BEWARE:
+				# The order in which columns are in queries is crucial to how the client loads the data.
 
-			query = {} # data to give back to client.
+				query = {} # data to give back to client.
 
-			# TODO figure out how to combine DB queries.
-			# Get data about the particular student
-			id = rd["EntryBox"]
-			rq = (
-				' SELECT '
-				' id, fname, lname, username, email'
-				' FROM `user` '
-				f' WHERE id = \'{id}\' '
-			)
-			query["man"] = database.Execute(rq, auto_index=True)
+				# TODO figure out how to combine DB queries.
+				# Get data about the particular student
+				id = rd["EntryBox"]
+				rq = (
+					' SELECT '
+					' id, fname, lname, username, email'
+					' FROM `user` '
+					f' WHERE id = \'{id}\' '
+				)
+				query["man"] = database.Execute(rq, auto_index=True)
 
-			if len(query["man"]) == 0:
-				return Error400("Worker is not in database.")
+				if len(query["man"]) == 0:
+					return Error400("Worker is not in database.")
 
-			# Get related tickets
-			table = function.Tickets(
-				where=f" WHERE user_id = '{id}' "
-			)
+				# Get related tickets
+				table = function.Tickets(
+					where=f" WHERE user_id = '{id}' "
+				)
 
-			if table:
-				query["table"] = table
+				if table:
+					query["table"] = table
 
-			return json.dumps(query, default=json_serial), 200
+				return json.dumps(query, default=json_serial), 200
 
-		elif rd["intent"] == "save":
-			options = [
-				("fname", 0),
-				("lname", 0),
-				("id", 1),
-				("email", 0),
-				("username", 0)
-			]
+			elif rd["intent"] in ["save", "new"]:
+				options = [
+					("fname", 0),
+					("lname", 0),
+					("id", 1),
+					("email", 0),
+					("username", 0),
+					("password", 0),
+					("salt", 0)
+				]
 
-			str = OptionsIter(options, rd)
+				pw, salt = function.password(rd["newpassword"])
+				rd["password"] = pw.hex()
+				rd["salt"] = salt.hex()
 
-			rq = (
-				 " UPDATE `user` SET "
-				 f"{str}"
-				f" WHERE `id` = {rd['EntryBox']}"
-			)
-			val = database.Execute(rq, auto_index=True)
+				if rd["intent"] == "save":
+					s = ""
+					for i in options:
+						if i[1] == 0:
+							s += (f" `{i[0]}` = '{rd[i[0]]}',")  # str
+						elif i[1] == 1:
+							s += (f" `{i[0]}` = {rd[i[0]]},")  # int
+					s = s[:-1]  # Remove last char
 
-			return "", 200
+					rq = (
+						" UPDATE `user` SET "
+						f"{s}"
+						f" WHERE `id` = {rd['EntryBox']}"
+					)
+
+				else:
+					colstr = ""
+					valstr = ""
+					for i in options:
+						colstr += " " + i[0] + ","
+
+						if i[1] == 0:
+							valstr += (f" '{rd[i[0]]}',")  # str
+						elif i[1] == 1:
+							valstr += (f" {rd[i[0]]},")  # int
+					valstr = valstr[:-1]  # Remove last char
+					colstr = colstr[:-1]
+					rq = (
+						" INSERT INTO `user` "
+						f" ({colstr}) "
+						" VALUES "
+						f" ({valstr}) "
+					)
+				database.Execute(rq, saving=True)
+
+				return "", 200
+		except Exception as e:
+			print(e)
+			return json.dumps({"error": str(e)}), 500
 
 @app.route('/student_master', methods = ["GET", "POST"])
 def student_master():
@@ -112,74 +146,98 @@ def student_master():
 
 
 	elif request.method == "POST":
-		rd = request.form.to_dict()
+		try:
+			rd = request.form.to_dict()
 
-		if rd["intent"] == "query":
-			# EDITORS BEWARE:
-			# The order in which columns are in queries is crucial to how the client loads the data.
+			if rd["intent"] == "query":
+				# EDITORS BEWARE:
+				# The order in which columns are in queries is crucial to how the client loads the data.
 
-			query = {} # data to give back to client.
+				query = {} # data to give back to client.
 
-			# Get data about the particular student
-			id = rd["EntryBox"]
-			rq = (
-				' SELECT '
-				' id, fname, lname, school, active'
-				' FROM `student` '
-				f' WHERE id = \'{id}\' '
-			)
-			query["man"] = database.Execute(rq, auto_index=True)
+				# Get data about the particular student
+				id = rd["EntryBox"]
+				rq = (
+					' SELECT '
+					' id, fname, lname, school, active'
+					' FROM `student` '
+					f' WHERE id = \'{id}\' '
+				)
+				query["man"] = database.Execute(rq, auto_index=True)
 
-			if len(query["man"]) == 0:
-				return Error400("Student is not in database.")
+				if len(query["man"]) == 0:
+					return Error400("Student is not in database.")
 
-			if id:
-				where = f" WHERE student_id = '{id}' "
-			else:
-				where = False
+				if id:
+					where = f" WHERE student_id = '{id}' "
+				else:
+					where = False
 
-			# Get student tickets
-			table = function.Tickets(where)
+				# Get student tickets
+				table = function.Tickets(where)
 
-			# add table if its not empty
-			if table:
-				query["table"] = table
+				# add table if its not empty
+				if table:
+					query["table"] = table
 
-			# Return all this crap to client.
-			return json.dumps(query, default=json_serial), 200
-
-
-		elif rd["intent"] == "save":
-			if rd.get("active") == "on": rd["active"] = 1
-			else: rd["active"] = 0
-
-			# with this setup, not every column has to be updated. TODO add on client
-			str = ""
-			options = [
-				("fname", 0),
-				("lname", 0),
-				("id", 1),
-				("school", 1),
-				("active", 1)
-			]
-
-			for i, j in enumerate(options):
-				print(rd[j[0]])
-				if j[1] == 0: str += (f" `{j[0]}` = '{rd[j[0]]}',") # str
-				elif j[1] == 1: str += (f" `{j[0]}` = {rd[j[0]]},") # int
-				if i == len(options) - 1: str = str[:-1] # Remove last char , if the last object in loop
-
-			rq = (
-				 " UPDATE `student` SET "
-				 f"{str}"
-				f" WHERE `id` = {rd['EntryBox']}"
-			)
-			val = database.Execute(rq, auto_index=True)
-
-			return "", 200
+				# Return all this crap to client.
+				return json.dumps(query, default=json_serial), 200
 
 
-# YUTA do homepage
+			elif rd["intent"] in ["save", "new"]:
+				if rd.get("active") == "on": rd["active"] = 1
+				else: rd["active"] = 0
+
+				# with this setup, not every column has to be updated. TODO add on client
+
+				options = [
+					("fname", 0),
+					("lname", 0),
+					("id", 1),
+					("school", 1),
+					("active", 1)
+				]
+
+				if rd["intent"] == "save":
+					s = ""
+					for i in options:
+						if i[1] == 0:
+							s += (f" `{i[0]}` = '{rd[i[0]]}',")  # str
+						elif i[1] == 1:
+							s += (f" `{i[0]}` = {rd[i[0]]},")  # int
+					s = s[:-1]  # Remove last char
+
+					rq = (
+						 " UPDATE `student` SET "
+						 f"{s}"
+						f" WHERE `id` = {rd['EntryBox']}"
+					)
+				else:
+					colstr = ""
+					valstr = ""
+					for i in options:
+						colstr += " " + i[0] + ","
+
+						if i[1] == 0:
+							valstr += (f" '{rd[i[0]]}',")  # str
+						elif i[1] == 1:
+							valstr += (f" {rd[i[0]]},")  # int
+					valstr = valstr[:-1]  # Remove last char
+					colstr = colstr[:-1]
+
+					rq = (
+						" INSERT INTO `student` "
+						f" ({colstr}) "
+						" VALUES "
+						f" ({valstr}) "
+					)
+				print(rq)
+				database.Execute(rq, saving=True)
+
+				return "", 200
+		except Exception as e:
+			return json.dumps({"error": str(e)}), 500
+
 @app.route('/home', methods = ["GET", "POST"])
 def home():
 	return render_template("home.html")
@@ -214,153 +272,156 @@ def report():
 		return render_template("report.html", values=json.dumps(data))
 
 	else: # POST
-		rd = request.form.to_dict()
+		try:
+			rd = request.form.to_dict()
 
-		intent = rd.get("ReportDropdown")
+			intent = rd.get("ReportDropdown")
 
-		if rd["isMobile"] == "true":
-			isMobile = True
-		else:
-			isMobile = False
-
-		res = {}
-		res["table"] = {}
-
-		# Return all of a user's tickets.
-		if intent == "user":
-			# Add where clause
-			entry = rd.get("EntryBox")
-			if entry is None or entry == "":
-				# FIXME user's cookie need to be same as one in db. they will be different if worker master is used on user.
-				where = f" WHERE user_id = '{session['id']}' "
+			if rd["isMobile"] == "true":
+				isMobile = True
 			else:
-				where = f" WHERE user_id = '{entry}' "
+				isMobile = False
 
-			# Get tickets.
-			res["table"] = function.Tickets(
-				where,
-				(rd.get("DateStart"), rd.get("DateEnd"))
-			)
+			res = {}
+			res["table"] = {}
 
-		# Just return student's names + school
-		elif intent == "name":
-			q = (
-				" SELECT id, fname, lname, school "
-				" FROM student "
-			)
-			res["table"]["main"] = database.Execute(q, True)
+			# Return all of a user's tickets.
+			if intent == "user":
+				# Add where clause
+				entry = rd.get("EntryBox")
+				if entry is None or entry == "":
+					# FIXME user's cookie need to be same as one in db. they will be different if worker master is used on user.
+					where = f" WHERE user_id = '{session['id']}' "
+				else:
+					where = f" WHERE user_id = '{entry}' "
 
-		# Return a student's tickets.
-		elif intent == "student":
-			entry = rd.get('EntryBox')
-			if entry:
-				where = f" WHERE student_id = '{entry}' "
-			else:
-				where = False
-
-			# Get tickets.
-			res["table"] = function.Tickets(
-				where,
-				(rd.get("DateStart"), rd.get("DateEnd"))
-			)
-
-		# Intervention Statistics
-		elif intent == "action_average":
-			action = rd.get("EntryDrop")
-			# Find average number of days it take for a ticket to be closed.
-			q = (
-				" SELECT timestamp, closed FROM ticket_old "
-			)
-
-			if rd.get("DateStart"):
-				q += function.ByDate(
-					(rd.get("DateStart"), rd.get("DateEnd")),  # le dates
-					False  # has no where!
+				# Get tickets.
+				res["table"] = function.Tickets(
+					where,
+					(rd.get("DateStart"), rd.get("DateEnd"))
 				)
-			r = database.Execute(q, True)
-			if r != {}:
-				def seconds(date):
-					x = date - datetime(1900, 1, 1)
-					return x.total_seconds()
 
-				# create list of seconds, being difference between timestamp and closed date
-				SecondsList = [
-					seconds(i[1]) - seconds(i[0])
-					for i in r.values()
-				]
-
-				# find median
-				x = 0.0
-				for i in SecondsList:
-					x += i
-				x = x / len(SecondsList)
-
-				x = x // 86400  # floor divide magic number to turn seconds into days
-				# prep for client.
-				res["table"]["main"] = {0: [x]}
-
-		elif intent == "action_type":
-			action = rd.get("EntryDrop")
-			q = (
-				" SELECT action_id, COUNT(action_id) FROM ticket "
-			)
-			HasWhere = False
-			if action != "all":
-				q += f" WHERE `action_id` = {action} "
-				HasWhere = True
-			if rd.get("DateStart"):
-				q += function.ByDate(
-					(rd.get("DateStart"), rd.get("DateEnd")),  # le dates
-					HasWhere
-				)
-			q += " GROUP BY action_id "
-			res["table"]["main"] = database.Execute(q, auto_index=True)
-
-		# School Statistics
-		elif intent == "school_percent":
-			action = rd.get("EntryDrop")
-
-			school = rd["EntryDrop"]
-			if school != "all":
+			# Just return student's names + school
+			elif intent == "name":
 				q = (
-					" SELECT DISTINCT action_id, COUNT(action_id) "
-					" FROM ticket "
-					" JOIN student S on S.id = ticket.student_id "
-					f" WHERE S.school = {school} "
+					" SELECT id, fname, lname, school "
+					" FROM student "
+				)
+				res["table"]["main"] = database.Execute(q, True)
+
+			# Return a student's tickets.
+			elif intent == "student":
+				entry = rd.get('EntryBox')
+				if entry:
+					where = f" WHERE student_id = '{entry}' "
+				else:
+					where = False
+
+				# Get tickets.
+				res["table"] = function.Tickets(
+					where,
+					(rd.get("DateStart"), rd.get("DateEnd"))
+				)
+
+			# Intervention Statistics
+			elif intent == "action_average":
+				action = rd.get("EntryDrop")
+				# Find average number of days it take for a ticket to be closed.
+				q = (
+					" SELECT timestamp, closed FROM ticket_old "
 				)
 
 				if rd.get("DateStart"):
 					q += function.ByDate(
 						(rd.get("DateStart"), rd.get("DateEnd")),  # le dates
-						True
+						False  # has no where!
 					)
-
-				q += (
-					" GROUP BY action_id "
-				)
 				r = database.Execute(q, True)
-				print(r)
+				if r != {}:
+					def seconds(date):
+						x = date - datetime(1900, 1, 1)
+						return x.total_seconds()
 
-			else:
+					# create list of seconds, being difference between timestamp and closed date
+					SecondsList = [
+						seconds(i[1]) - seconds(i[0])
+						for i in r.values()
+					]
+
+					# find median
+					x = 0.0
+					for i in SecondsList:
+						x += i
+					x = x / len(SecondsList)
+
+					x = x // 86400  # floor divide magic number to turn seconds into days
+					# prep for client.
+					res["table"]["main"] = {0: [x]}
+
+			elif intent == "action_type":
+				action = rd.get("EntryDrop")
 				q = (
-					" SELECT DISTINCT S.school, COUNT(S.school) "
-					" FROM ticket JOIN student S on S.id = ticket.student_id "
+					" SELECT action_id, COUNT(action_id) FROM ticket "
 				)
-
+				HasWhere = False
+				if action != "all":
+					q += f" WHERE `action_id` = {action} "
+					HasWhere = True
 				if rd.get("DateStart"):
 					q += function.ByDate(
 						(rd.get("DateStart"), rd.get("DateEnd")),  # le dates
-						False
+						HasWhere
+					)
+				q += " GROUP BY action_id "
+				res["table"]["main"] = database.Execute(q, auto_index=True)
+
+			# School Statistics
+			elif intent == "school_percent":
+				action = rd.get("EntryDrop")
+
+				school = rd["EntryDrop"]
+				if school != "all":
+					q = (
+						" SELECT DISTINCT action_id, COUNT(action_id) "
+						" FROM ticket "
+						" JOIN student S on S.id = ticket.student_id "
+						f" WHERE S.school = {school} "
 					)
 
-				q += " GROUP BY S.school "
+					if rd.get("DateStart"):
+						q += function.ByDate(
+							(rd.get("DateStart"), rd.get("DateEnd")),  # le dates
+							True
+						)
 
-			r = database.Execute(q, True)
-			if r != {}:
-				res["table"]["main"] = r
+					q += (
+						" GROUP BY action_id "
+					)
+					r = database.Execute(q, True)
+					print(r)
 
-		print(json.dumps(res, default=json_serial))
-		return json.dumps(res, default=json_serial), 200
+				else:
+					q = (
+						" SELECT DISTINCT S.school, COUNT(S.school) "
+						" FROM ticket JOIN student S on S.id = ticket.student_id "
+					)
+
+					if rd.get("DateStart"):
+						q += function.ByDate(
+							(rd.get("DateStart"), rd.get("DateEnd")),  # le dates
+							False
+						)
+
+					q += " GROUP BY S.school "
+
+				r = database.Execute(q, True)
+				if r != {}:
+					res["table"]["main"] = r
+
+			print(json.dumps(res, default=json_serial))
+			return json.dumps(res, default=json_serial), 200
+		except Exception as e:
+			return json.dumps({"error": str(e)}), 500
 
 @app.route('/entry', methods = ["GET", "POST"])
 def entry():
@@ -369,7 +430,7 @@ def entry():
 		data["list"] = {}
 
 		query = database.Execute(
-			f"SELECT id, fname, lname, school FROM `student`", True
+			f"SELECT id, fname, lname, school FROM `student` WHERE `active` = 1", True
 		)
 		data["list"]["studentlist"] = query
 
@@ -388,6 +449,8 @@ def entry():
 		if len(query) == 0:
 			return "", 400
 
+
+		print(session['id'])
 		# Add ticket to database
 		query = (
 			"INSERT INTO `ticket` "
@@ -396,7 +459,7 @@ def entry():
 				f"('{rd.get('student_id')}', '{rd.get('action')}', '{rd.get('comment')}', '{rd.get('info')}', '{rd.get('date')}', CURRENT_TIMESTAMP, '{session['id']}')"
 			)
 
-		val = database.Execute(query, auto_index=True)
+		val = database.Execute(query, saving=True)
 		return "", 200 # Return OK
 
 
@@ -459,21 +522,3 @@ def login():
 		else:
 			print("bad password")
 			return bad["password"]
-
-# # TODO temporary
-# @app.route("/newuser", methods = ["GET", "POST"])
-# def Usermake():
-# 	print(request.form.getlist('username[]'))
-# 	# password hashing
-# 	username = "hi"
-# 	email = "bruh"
-# 	salt = os.urandom(32)
-# 	print(salt.hex())
-# 	password = "a"
-# 	hashed = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
-#
-# 	database.Execute(
-# 		"INSERT INTO `user` (`username`, `email`, `password`, `salt`)"
-# 		f"VALUES ('{username}', '{email}', '{hashed.hex()}', '{salt.hex()}')"
-# 	)
-# 	return "made dummy"

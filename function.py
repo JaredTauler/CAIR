@@ -1,5 +1,7 @@
 import re
 from database import Execute
+import os
+import hashlib
 
 ### DB operations
 
@@ -98,7 +100,7 @@ def Find_ID(res, icol):
 
 
 # TODO mobile data different: no info or comment.
-def Tickets(where, dater=()):
+def Tickets(where, dater=None):
 	# Data for on screen table.
 	table = {}
 
@@ -113,8 +115,9 @@ def Tickets(where, dater=()):
 		rq += where
 
 	# date range thingy (i sleepy ok)
-	if dater[0]:
-		rq += ByDate(dater, where)
+	if dater:
+		if dater[0]:
+			rq += ByDate(dater, where)
 
 	table["main"] = Execute(rq)
 
@@ -147,3 +150,8 @@ def Tickets(where, dater=()):
 	table["join"]["action"] = Execute(rq)
 
 	return table
+
+def password(password):
+	salt = os.urandom(32)
+	hashed = hashlib.pbkdf2_hmac('sha256', password.encode('utf-8'), salt, 100000)
+	return hashed, salt

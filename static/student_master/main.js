@@ -3,6 +3,7 @@
 // document.getElementById("FetchForm").addEventListener("submit", Fetch)
 
 function Fetch(){
+    NewID = false
     let formData = new FormData(document.getElementById("FetchForm")) // Get form data
     formData.append('isMobile', isMobile); // add mobile tag to formdata.
     formData.append("intent", "query")
@@ -67,14 +68,22 @@ function Fetch(){
 
 function Save () {
     let formData = new FormData(document.getElementById("changeform")) // Get form data
-    console.log(formData)
     formData.append('isMobile', isMobile); // add mobile tag to formdata.
-    formData.append("intent", "save")
+    if (NewID) formData.append("intent", "new")
+    else formData.append("intent", "save")
     formData.append("EntryBox", document.getElementById("EntryBox").value)
     let xhttp = new XMLHttpRequest();
     xhttp.onreadystatechange = function () {
-        if (this.readyState == 4 && this.status == 200) {
-            // console.log(response)
+        if (this.readyState == 4) {
+            if (this.status == 200) {
+                PopupText("Succesfully saved")
+                ShowPopup()
+            }
+            else if (this.status == 500) {
+                response = JSON.parse(xhttp.response)
+                PopupError(response)
+                ShowPopup()
+            }
         }
     };
 
@@ -85,3 +94,10 @@ function Save () {
 }
 
 EntryBox.addEventListener("click", Clear)
+
+document.getElementById("buttonnew").addEventListener("click", function()
+    {
+        NewID = true
+        ChangeForm.disable(false)
+    }
+)

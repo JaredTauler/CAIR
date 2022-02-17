@@ -1,5 +1,5 @@
 HeaderTitle("Worker Master")
-
+var NewID = false
 let ReportTable = document.getElementById("ReportTable");
 let ReportTableTabulator = new Tabulator("#ReportTable", );
 let TableDiv = document.getElementById("tablediv")
@@ -8,7 +8,7 @@ let EntryBox = document.getElementById("EntryBox")
 // Form that manipulates student data.
 const ChangeForm = {}
 {
-    let x = ["fname", "lname", "username", "email", "last", "id"]
+    let x = ["fname", "lname", "username", "email", "last", "id", "newpassword"]
 
     let a = document.getElementById("changeform")
 

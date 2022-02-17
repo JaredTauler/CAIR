@@ -25,14 +25,24 @@
         >
         <datalist id="UserList"></datalist>
 
-        <input class="button smooth" type="submit" title="Submit Button" id="ReportFetch"
-               name="ReportFetch" value="Search" style="
-                    grid-column: 2;
-                    width: fit-content;
-                    justify-self: center;
-        "
+        <div>
+            <input class="button smooth" type="submit" title="Submit Button" id="ReportFetch"
+                   name="ReportFetch" value="Search" style="
+                        grid-column: 2;
+                        width: fit-content;
+                        justify-self: center;
+            "
 
-        >
+            >
+            <input class="button smooth" type="button" title="New" id="buttonnew"
+                   name="ReportFetch" value="New" style="
+                            grid-column: 2;
+                            width: fit-content;
+                            justify-self: center;
+                "
+
+            >
+        </div>
 
     </form>
 
@@ -55,6 +65,10 @@
 
         <label>Email:
             <input name="email" id="email" type="text" class="smooth glowfocus formbox">
+        </label>
+
+        <label>Password:
+            <input name="newpassword" id="newpassword" type="text" class="smooth glowfocus formbox">
         </label>
 
         <input class="button smooth" type="submit" title="Save Button"

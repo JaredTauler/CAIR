@@ -1,5 +1,5 @@
 HeaderTitle("Master")
-
+var NewID = false
 let ReportTable = document.getElementById("ReportTable");
 let ReportTableTabulator = new Tabulator("#ReportTable", );
 let TableDiv = document.getElementById("tablediv")
@@ -29,6 +29,7 @@ const ChangeForm = {}
         }
     }
 }
+
 // document.getElementById("last").hidden = true
 const Statistic = {}
 Statistic["last"] = document.getElementById("lastval")

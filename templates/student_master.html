@@ -21,18 +21,27 @@
         <input name="EntryBox" title="Entry Box" type="text" id="EntryBox"
            placeholder="Student ID" list="ReportStudentList" class="smooth glowfocus formbox"
            style="grid-column: 1;"
-           autocomplete="ygiuyguygoyug"
+           autocomplete="off"
         >
         <datalist id="ReportStudentList"></datalist>
+        <div>
+            <input class="button smooth" type="submit" title="Submit Button" id="ReportFetch"
+                   name="ReportFetch" value="Search" style="
+                        grid-column: 2;
+                        width: fit-content;
+                        justify-self: center;
+            "
 
-        <input class="button smooth" type="submit" title="Submit Button" id="ReportFetch"
-               name="ReportFetch" value="Search" style="
-                    grid-column: 2;
-                    width: fit-content;
-                    justify-self: center;
-        "
+            >
+            <input class="button smooth" type="button" title="New" id="buttonnew"
+               name="ReportFetch" value="New" style="
+                        grid-column: 2;
+                        width: fit-content;
+                        justify-self: center;
+            "
 
-        >
+            >
+        </div>
 
     </form>
 

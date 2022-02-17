@@ -2,12 +2,16 @@ from app import DBstr
 import mysql.connector
 
 # FIXME return ISO8601 from DB rather than a date object, i feel this would be more efficient.
-def Execute(query, auto_index=False):
+def Execute(query, auto_index=False, saving = False):
 	with Conn() as cnx:
 		cur = cnx.cursor()
 		cur.execute(query)
 
-		result = cur.fetchall()
+		if saving:
+			cnx.commit()
+			return
+		else:
+			result = cur.fetchall()
 
 	if result is []:
 		return True # if no result (e.g. INSERT)
