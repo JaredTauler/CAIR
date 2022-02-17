@@ -1,6 +1,0 @@
-DBstr:
-  host: 10.227.160.116
-  user: student
-  password: 5249
-  database: cair
-DEBUG: true
