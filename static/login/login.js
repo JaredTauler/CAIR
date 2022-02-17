@@ -43,8 +43,8 @@ document.getElementById("LoginButton").addEventListener("click", function(){
     // On response data:
     }).done(function (data) {
         if (data[0] === "bad") {
-            console.log(data[1])
-            // TODO tell user why couldnt log in.
+            PopupText("Wrong " + data[1] + ".")
+            ShowPopup()
         }
         if (data[0] === "redirect") {
             let cookie = JSON.parse(document.cookie)

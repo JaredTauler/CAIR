@@ -23,32 +23,6 @@ function CheckID () {
     }
 }
 
-// Form submission logic.
-// let form = document.querySelector("#mainform")
-// $("#mainform").submit(function (event) {
-//     if (!CheckID()) {return false} // If no ID, dont bother sending POST.
-//
-//     // Get all data from form.
-//     let formData = new FormData(document.querySelector('#mainform'))
-//
-//     // Post to server
-//     $.ajax({
-//         type: "POST",
-//         url: window.location.href,
-//         dataType: "json",
-//         processData: false,
-//         contentType: false,
-//         encode: true,
-//         data: formData,
-//
-//     // On response data:
-//     }).done(function (data) {
-//
-//     });
-//
-//     event.preventDefault();
-//     return false;
-// });
 document.getElementById("submitbutton").addEventListener("click", function() {
     let formData = new FormData(document.getElementById("mainform")) // Get form data
     if (!CheckID()) {return false} // If no ID, dont bother sending POST.
@@ -61,10 +35,8 @@ document.getElementById("submitbutton").addEventListener("click", function() {
                 response = JSON.parse(this.response)
             }
             if (this.status == 200) {
-                // if (data["result"] === "pick") {
-                //     openModal(PickStudent, data["query"])
-                // }
-
+                PopupText("Success")
+                ShowPopup()
                 return false
             }
         }
