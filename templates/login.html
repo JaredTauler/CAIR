@@ -10,11 +10,11 @@
 {% block content %}
 <div style="display: grid; justify-items: center;">
     <img src="{{ url_for('static', filename='berklogo.png') }}" class="logo">
-    <form style="display: grid" id="LoginForm">
+    <form style="display: grid" id="LoginForm" onsubmit="return login()">
         <p id="problem"></p>
-        <input type="text" id="username" placeholder="User ID" class="glowfocus smooth formbox"><br><br>
-        <input type="text" id="password" placeholder="Password" class="glowfocus smooth formbox"><br><br>
-        <input type="button" value="Login" class="button smooth" id="LoginButton">
+        <input type="text" name="username" id="username" placeholder="User ID" class="glowfocus smooth formbox"><br><br>
+        <input type="text" name="password" id="password" placeholder="Password" class="glowfocus smooth formbox"><br><br>
+        <input type="submit" value="Login" class="button smooth" >
     </form>
 </div>
 {% endblock %}
