@@ -7,11 +7,14 @@ function PopupText(str) {
   document.getElementById("modal-text").textContent = str
 }
 
-window.onclick = function(event) {
+function PopupClose(event) {
   if (event.target == modal) {
     modal.style.display = "none";
   }
 }
+
+window.onclick = PopupClose
+window.ontouchstart = PopupClose
 
 function PopupError(response) {
   console.log(response)
