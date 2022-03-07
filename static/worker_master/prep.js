@@ -8,7 +8,7 @@ let EntryBox = document.getElementById("EntryBox")
 // Form that manipulates student data.
 const ChangeForm = {}
 {
-    let x = ["fname", "lname", "username", "email", "last", "id", "newpassword"]
+    let x = ["fname", "lname", "username", "email", "last", "newpassword"]
 
     let a = document.getElementById("changeform")
 
