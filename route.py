@@ -83,7 +83,6 @@ def worker_master():
 				options = [
 					("fname", 0),
 					("lname", 0),
-					("id", 1),
 					("email", 0),
 					("username", 0),
 					("password", 0),
