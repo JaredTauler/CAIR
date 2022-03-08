@@ -50,7 +50,7 @@ function Fetch(){
                 let man = response["man"][0] // auto indexed
                 console.log(man)
                 ChangeForm.disable(false)
-                ChangeForm["id"].value = man[0]
+                // ChangeForm["id"].value = man[0]
                 ChangeForm["fname"].value = man[1]
                 ChangeForm["lname"].value = man[2]
                 ChangeForm["username"].value = man[3]

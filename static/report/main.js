@@ -38,7 +38,7 @@ document.getElementById("ReportFetch").addEventListener("click", function(){
 })
 
 // Logic for when date elements should be disabled or enabled.
-// Im sure there is a much more simpler way of doing this. I dont know that way, but this works flawlessly.
+// Im sure there is a much more simpler way of doing this. I dont know that way, but this works.
 {
     let StartCheckBox = document.getElementById("DateStartCheckbox")
     StartCheckBox.addEventListener("change", function () {
@@ -79,6 +79,12 @@ document.getElementById("ReportFetch").addEventListener("click", function(){
     let DropDown = document.getElementById("ReportDropdown")
     var EntryDrop = document.getElementById("EntryDrop")
     let text = document.getElementById("EntryBox")
+    let NameList = {
+        "ReportStudentList": document.getElementById("ReportStudentList"),
+        "ReportUserList": document.getElementById("ReportUserList")
+    }
+
+
 
     DropDown.addEventListener("change", function() {DropDownDecide()})
 
@@ -88,6 +94,7 @@ document.getElementById("ReportFetch").addEventListener("click", function(){
             text.hidden = false
             EntryDrop.hidden = true
         }
+
         function SetEntryDrop (s) {
             while (EntryDrop.hasChildNodes()) {
                 EntryDrop.firstChild.remove()
@@ -116,10 +123,12 @@ document.getElementById("ReportFetch").addEventListener("click", function(){
         else if (DropDown.value === "student") {
             state = [1,1,1,1,1]
             EntryText("Student ID")
+            text.setAttribute("list", "ReportStudentList")
         }
         else if (DropDown.value === "user") {
             state = [1,1,1,1,1]
             EntryText("User ID")
+            text.setAttribute("list", "ReportUserList")
         }
         else if (DropDown.value === "school_percent") {
             state = [1,1,1,1,1]

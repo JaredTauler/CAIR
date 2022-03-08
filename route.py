@@ -263,7 +263,7 @@ def report():
 		data["man"]["student"] = r
 
 		q = f"SELECT id, fname, lname FROM `user`"
-		r = database.Execute(q)
+		r = database.Execute(q, True)
 		data["man"]["user"] = r
 
 		data["drop"]["action_type"] = function.GetAction()
