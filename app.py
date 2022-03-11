@@ -30,7 +30,7 @@ import route
 # Routes not logged in users can access.
 # remember to keep this updated
 NoLoginWhitelist = [
-	"/login",
+	"/login", "/home",
 	"/static/login/login.css", "/static/base/base.css", "/static/common.css", "/static/header/header.css",
 	"/static/login/login.js", "/static/base/base.js", "/static/header/header.js",
 	"/static/berklogo.png", "/static/favicon.ico",

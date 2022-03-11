@@ -1,0 +1,39 @@
+<link rel="stylesheet" href="{{ url_for('static', filename='popup/style.css') }}">
+
+<!-- The Modal -->
+<div id="SearchModal" class="modal">
+
+  <!-- Modal content -->
+  <dialog open style="position: relative;">
+    <form id="SearchForm" onsubmit="return false">
+        <div style="display: grid">
+            <label>
+                Student Name:
+                <input type="text" name="box" onclick="ClearStudentList()" autocomplete="off">
+            </label>
+
+            <label>
+                Student is active:
+                <input type="checkbox" name="active" value="0" onchange="ClearStudentList()">
+            </label>
+        </div>
+
+        <input type="button" value="Search" onclick="StudentSearch()">
+    </form>
+    <div>
+        <label>
+            <select id="StudentList"
+            style="width: 60%"
+            ></select>
+        </label>
+        <input type="button" value="Select" onclick="SearchSubmit({{ EntryBox }})">
+        <input type="button" value="Close" onclick="HideSearchModal()">
+    </div>
+
+</dialog>
+
+</div>
+
+ <script>
+    {{ static_include("popup/main.js") | safe }}
+</script>

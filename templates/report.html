@@ -16,6 +16,9 @@
 {% endblock %}
 
 {% block content %}
+{% with EntryBox="'EntryBox'" %}
+    {% include 'student_search.html' %}
+{% endwith %}
 <form id="ReportForm" class="FormContainer" autocomplete="off">
         <input name="DateStart" id="DateStart" title="Start Date" type="date" style="grid-column-start: 1;" class="smooth glowfocus formbox" placeholder="date">
 
@@ -47,6 +50,13 @@
            autocomplete="ygiuyguygoyug"
 {# gibberish seems to be the only way to get this to work?
 nope, off, false, no, new-password: do not work#}
+        >
+        <input id= StudentSearchButton class="button smooth" type="button" title="Search For Student" value="Search For Student" style="
+                visibility: hidden;
+            grid-column: 2;
+            width: fit-content;
+            justify-self: center;
+        " onclick="ShowSearchModal()"
         >
         <datalist id="ReportStudentList"></datalist>
         <datalist id="ReportUserList"></datalist>
@@ -81,5 +91,6 @@ nope, off, false, no, new-password: do not work#}
     {{ static_include("report/prep.js") | safe }}
     {{ static_include("report/tableformat.js") | safe }}
     {{ static_include("report/main.js") | safe }}
+    {{ static_include("student_search/main.js") | safe }}
 </script>
 {% endblock %}

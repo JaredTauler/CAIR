@@ -34,6 +34,13 @@ def OptionsIter(options, rd):
 	str = str[:-1]  # Remove last comma
 	return str
 
+@app.route('/student_search', methods = ["GET", "POST"])
+def student_search():
+	rd = request.form.to_dict()
+	return function.StudentSearch(
+		rd["box"],
+		active=rd.get("active")
+	)
 
 @app.route('/worker_master', methods = ["GET", "POST"])
 def worker_master():

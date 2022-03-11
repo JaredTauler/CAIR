@@ -14,7 +14,9 @@
 
 {% block content %}
 
-
+{% with EntryBox="'EntryBox'" %}
+    {% include 'student_search.html' %}
+{% endwith %}
 <div id = "mainform" class="form">
     <form id="FetchForm" class="FormContainer" onsubmit="return Fetch()">
         <label>Student's name or ID:</label>
@@ -39,6 +41,13 @@
                         width: fit-content;
                         justify-self: center;
             "
+
+            >
+            <input class="button smooth" type="button" title="Search For Student" value="Search For Student" style="
+                        grid-column: 2;
+                        width: fit-content;
+                        justify-self: center;
+            " onclick="ShowSearchModal()"
 
             >
         </div>
@@ -104,5 +113,6 @@
     {{ static_include("student_master/prep.js") | safe }}
     {{ static_include("student_master/main.js") | safe }}
     {{ static_include("student_master/tableformat.js") | safe }}
+    {{ static_include("student_search/main.js") | safe }}
 </script>
 {% endblock %}

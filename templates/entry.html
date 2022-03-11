@@ -9,6 +9,10 @@
 {% endblock %}
 
 {% block content %}
+
+{% with EntryBox="'student_id'" %}
+    {% include 'student_search.html' %}
+{% endwith %}
 <form id = "mainform" class="form">
     <input
             name="date"
@@ -18,18 +22,25 @@
             class="smooth glowfocus formbox"
             placeholder="date"
     >
-
-    <input
+    <div>
+        <input
             name = "student_id"
             title="Student Name"
             type="text"
             id="student_id"
             placeholder="Student ID"
-            list="studentlist"
+            list="student-list"
             class="smooth glowfocus formbox"
             autocomplete="off"
-    >
-    <datalist id="studentlist"></datalist>
+        >
+        <input class="button smooth" type="button" title="Search For Student" value="Search For Student" style="
+                    grid-column: 2;
+                    width: fit-content;
+                    justify-self: center;
+        " onclick="ShowSearchModal()"
+        >
+        <datalist id="student-list"></datalist>
+    </div>
 
     <select
             name = "action"
@@ -71,5 +82,7 @@
      const VALUES = {{ values|safe }}
      {{ static_include("entry/prep.js") | safe }}
      {{ static_include("entry/main.js") | safe }}
+     {{ static_include("student_search/main.js") | safe }}
+
 </script>
 {% endblock %}

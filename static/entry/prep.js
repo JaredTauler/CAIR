@@ -14,7 +14,7 @@ document.getElementById('date').value = getDate()
             console.log(row, i)
             let opt = document.createElement('option');
 
-            if (key === "studentlist") {
+            if (key === "student-list") {
                 opt.text = "".concat(title(row[1]), " ", title(row[2]));
                 opt.value = row[0];
             } else if (key === "action") {

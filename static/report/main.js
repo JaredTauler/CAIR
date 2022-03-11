@@ -83,6 +83,7 @@ document.getElementById("ReportFetch").addEventListener("click", function(){
         "ReportStudentList": document.getElementById("ReportStudentList"),
         "ReportUserList": document.getElementById("ReportUserList")
     }
+    let StudentSearchButton = document.getElementById("StudentSearchButton")
 
 
 
@@ -117,20 +118,24 @@ document.getElementById("ReportFetch").addEventListener("click", function(){
         let state = false
 
         if (DropDown.value === "name") {
+            StudentSearchButton.style.visibility = "hidden"
             state = [0,0,0,0,0]
             EntryText("")
         }
         else if (DropDown.value === "student") {
+            StudentSearchButton.style.visibility = "visible"
             state = [1,1,1,1,1]
             EntryText("Student ID")
             text.setAttribute("list", "ReportStudentList")
         }
         else if (DropDown.value === "user") {
+            StudentSearchButton.style.visibility = "hidden"
             state = [1,1,1,1,1]
             EntryText("User ID")
             text.setAttribute("list", "ReportUserList")
         }
         else if (DropDown.value === "school_percent") {
+            StudentSearchButton.style.visibility = "hidden"
             state = [1,1,1,1,1]
             EntryText("")
             SetEntryDrop(
@@ -142,6 +147,7 @@ document.getElementById("ReportFetch").addEventListener("click", function(){
             DropDecide("all")
         }
         else if (DropDown.value === "action_type") {
+            StudentSearchButton.style.visibility = "hidden"
             state = [1,1,1,1,1]
             SetEntryDrop(
                 // Options for dropdown is action table query + everything
@@ -155,10 +161,12 @@ document.getElementById("ReportFetch").addEventListener("click", function(){
             DropDecide("all")
         }
         else if (DropDown.value === "action_average") {
+            StudentSearchButton.style.visibility = "hidden"
            state = [1,1,1,1,0]
             EntryText("")
         }
         else {
+            StudentSearchButton.style.visibility = "hidden"
             state = [0,0,0,0,0]
             EntryText("")
         }
