@@ -1,8 +1,10 @@
 ReportTable = document.getElementById("ReportTable")
-ReportTableTabulator = new Tabulator("#ReportTable", {
+function ClearTable() {
+    ReportTableTabulator = new Tabulator("#ReportTable", {
     autoColumns:true,
 });
-
+}
+ClearTable()
 // On fetch button click,
 document.getElementById("ReportFetch").addEventListener("click", function(){
     let formData = new FormData(document.getElementById("ReportForm")) // Get form data

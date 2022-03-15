@@ -34,7 +34,7 @@
             <input title="End Date Checkbox" name="DateEndCheckbox" id="DateEndCheckbox" type="checkbox" >
         </div>
 
-        <select title="Report Dropdown" id="ReportDropdown" name="ReportDropdown" class="smooth glowfocus formbox" style="grid-column: 1;">
+        <select title="Report Dropdown" id="ReportDropdown" name="ReportDropdown" class="smooth glowfocus formbox" style="grid-column: 1;" onchange="ClearTable()">
             <option value="" disabled="" selected="" hidden="">Report Type</option>
             <option value="name">Student's Names</option>
             <option value="student">Student's Tickets</option>
