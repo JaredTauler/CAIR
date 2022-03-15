@@ -191,7 +191,7 @@ def student_master():
 
 
 			elif rd["intent"] in ["save", "new"]:
-				if rd.get("active") == "on": rd["active"] = 1
+				if "active" in rd.keys(): rd["active"] = 1
 				else: rd["active"] = 0
 
 				# with this setup, not every column has to be updated. TODO add on client
