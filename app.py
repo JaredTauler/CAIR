@@ -7,7 +7,7 @@ import yaml
 from flask import Flask, abort, redirect, url_for, request, session
 from flask_session import Session
 
-os.chdir("C:\\Users\\Student\\PycharmProjects\\CAIR")
+os.chdir("C:\\Users\\Teacher\\PycharmProjects\\CAIR")
 
 # Load config
 with open("config.yaml", "r") as f:

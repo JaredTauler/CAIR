@@ -47,3 +47,7 @@ document.getElementById("submitbutton").addEventListener("click", function() {
 
     return false;
 })
+
+function SearchFunction (str) {
+    document.getElementById("StudentName").textContent = str
+}

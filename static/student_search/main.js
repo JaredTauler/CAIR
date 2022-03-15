@@ -1,5 +1,5 @@
 let StudentList = document.getElementById("StudentList")
-
+var CallBack = undefined
 
 function StudentSearch() {
     let formData = new FormData(document.getElementById("SearchForm"))
@@ -12,7 +12,7 @@ function StudentSearch() {
                 for (let i in response) {
                     console.log(response[i])
                     var option = document.createElement("option");
-                    option.text = response[i][0] + " " + response[i][1];
+                    option.text = title(response[i][0]) + " " + title(response[i][1]);
                     option.value = i;
                     StudentList.appendChild(option)
                 }
@@ -27,12 +27,16 @@ function StudentSearch() {
 function SearchSubmit(id) {
     document.getElementById(id).value = StudentList.value
     HideSearchModal()
+    if (CallBack !== undefined) {
+        CallBack(StudentList.options[StudentList.selectedIndex].text)
+    }
 }
 
 let SearchModal = document.getElementById("SearchModal");
 
-function ShowSearchModal() {
+function ShowSearchModal(callback=undefined) {
   SearchModal.style.display = "grid";
+  CallBack = callback
 }
 
 function HideSearchModal() {
